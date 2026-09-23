@@ -41,12 +41,14 @@ public class PosingGraphicalWindow : Window, IDisposable
     private readonly GPoseService _gPoseService;
     private readonly PhysicsService _physicsService;
     private readonly PosingTransformEditor _transformEditor = new();
+    private readonly FacialControlsEditor _facialControlsEditor = new();
     private readonly BoneSearchControl _boneSearchControl = new();
     private float _closestHover = float.MaxValue;
 
     private Matrix4x4? _trackingMatrix;
 
     int _selectedPane = 0;
+    int _faceControlPane = 0;
     private bool _hideControlPane = false;
 
     public PosingGraphicalWindow(EntityManager entityManager, CameraService cameraService, PhysicsService physicsService, ConfigurationService configurationService, PosingService posingService, GPoseService gPoseService) : base($"{Brio.Name} - POSING###brio_posing_graphical_window")
@@ -128,11 +130,15 @@ public class PosingGraphicalWindow : Window, IDisposable
 
         DrawTopBar(posing);
 
+        var controlPaneSize = _selectedPane == 1 && _faceControlPane == 1
+            ? new Vector2(360 * ImGuiHelpers.GlobalScale, 0)
+            : _rightPaneSize;
+
         float leftPanelWidth;
         if(posing.TransformWindowOpen || _hideControlPane)
             leftPanelWidth = (ImBrio.GetRemainingWidth() - ImGui.GetStyle().ItemSpacing.X);
         else
-            leftPanelWidth = (ImBrio.GetRemainingWidth() - _rightPaneSize.X - ImGui.GetStyle().ItemSpacing.X);
+            leftPanelWidth = (ImBrio.GetRemainingWidth() - controlPaneSize.X - ImGui.GetStyle().ItemSpacing.X);
 
         using(var leftColumn = ImRaii.Child("###left_column", new Vector2(leftPanelWidth, -1), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoBackground))
         {
@@ -154,7 +160,7 @@ public class PosingGraphicalWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        using(var rightPane = ImRaii.Child("###right_pane", _rightPaneSize, false,
+        using(var rightPane = ImRaii.Child("###right_pane", controlPaneSize, false,
             ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoBackground))
         {
             if(rightPane.Success && posing.TransformWindowOpen is false && _hideControlPane is false)
@@ -167,7 +173,7 @@ public class PosingGraphicalWindow : Window, IDisposable
                 {
                     if(rightPaneSelection.Success)
                     {
-                        DrawSelection(posing);
+                        DrawControlPane(posing);
                     }
                 }
 
@@ -349,6 +355,29 @@ public class PosingGraphicalWindow : Window, IDisposable
                 _transformEditor.Draw("graphical_transform", posing);
             }
         }
+    }
+
+    private void DrawControlPane(PosingCapability posing)
+    {
+        if(_selectedPane == 1
+            && _entityManager.TryGetCapabilityFromSelectedEntity<FacialControlCapability>(out var facialControls))
+        {
+            ImBrio.ButtonSelectorStrip("face_control_pane", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref _faceControlPane, ["Bones", "Expressions"]);
+            ImGui.Spacing();
+
+            if(_faceControlPane == 1)
+            {
+                using(ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 8f))
+                using(var child = ImRaii.Child("###facial_expression_editor", new Vector2(-1, -1), true, ImGuiWindowFlags.AlwaysVerticalScrollbar))
+                {
+                    if(child.Success)
+                        _facialControlsEditor.Draw("graphical_posing", facialControls);
+                }
+                return;
+            }
+        }
+
+        DrawSelection(posing);
     }
 
     private void DrawTransformHeader(PosingCapability posing)

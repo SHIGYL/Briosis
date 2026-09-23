@@ -1,4 +1,7 @@
-# BRIO - A FFXIV plugin to enhance the GPosing experience. 
+# Brio Facial - Brio with Ktisis-style facial controls
+
+This development fork is based on Brio `v0.8.0.11` and adds Ktisis-style facial action-unit sliders. It keeps Brio's namespaces and core architecture while using the distinct Dalamud identity `BrioFacial` and command `/briofacial`. See [FACIAL_CONTROLS_ANALYSIS.md](FACIAL_CONTROLS_ANALYSIS.md) for the source analysis and transfer design.
+
 [![Build status](https://github.com/Etheirys/Brio/actions/workflows/build.yml/badge.svg)](https://github.com/Etheirys/Brio/actions/workflows/build.yml) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Etheirys/Brio/total?style=flat) [![Latest Release](https://img.shields.io/github/v/release/Etheirys/Brio)](https://github.com/Etheirys/Brio/releases/latest) ![GitHub License](https://img.shields.io/github/license/Etheirys/Brio?style=flat) ![Bluesky followers](https://img.shields.io/bluesky/followers/minmoose.bsky.social?style=flat&label=bluesky%20followers) ![Discord](https://img.shields.io/discord/1198316676865867776?label=discord) 
 
 > Brio is currently in BETA, as such, there may be bugs. If you find any, please report them!

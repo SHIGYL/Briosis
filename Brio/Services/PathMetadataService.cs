@@ -53,7 +53,11 @@ public class PathMetadataService
             pluginBytes = ms.ToArray();
         }
 
-        Load(PathTarget.User, ref userBytes);
+        // A new plugin identity has no user metadata file yet. An empty store is
+        // valid on first launch; only deserialize when a file actually supplied data.
+        if(userBytes.Length > 0)
+            Load(PathTarget.User, ref userBytes);
+
         Load(PathTarget.Plugin, ref pluginBytes);
     }
 

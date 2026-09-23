@@ -130,6 +130,8 @@ public class ActorEntity(IGameObject gameObject, IServiceProvider provider) : Tr
 
         AddCapability(ActivatorUtilities.CreateInstance<PosingCapability>(_serviceProvider, this));
 
+        AddCapability(ActivatorUtilities.CreateInstance<FacialControlCapability>(_serviceProvider, this));
+
         AddCapability(ActionTimelineCapability.CreateIfEligible(_serviceProvider, this));
 
         AddCapability(ActorTimelineCapability.CreateIfEligible(_serviceProvider, this));

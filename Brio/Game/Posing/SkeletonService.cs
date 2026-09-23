@@ -1,4 +1,5 @@
 using Brio.Capabilities.Posing;
+using Brio.Capabilities.Actor;
 using Brio.Core;
 using Brio.Entities;
 using Brio.Game.Actor.Extensions;
@@ -237,7 +238,16 @@ public unsafe class SkeletonService : IDisposable
 
         foreach(var skeleton in _skeletonsToUpdate)
         {
-            ApplyBrioTransforms(skeleton, _skeletonToPosingCapability[skeleton]);
+            var posingCapability = _skeletonToPosingCapability[skeleton];
+            ApplyBrioTransforms(skeleton, posingCapability);
+
+            // A posing capability also registers weapon, prop, and ornament skeletons.
+            // Facial state belongs only to the actor's character skeleton; binding it
+            // to the auxiliary skeletons would invalidate and reset the weights every frame.
+            if(ReferenceEquals(posingCapability.CharacterSkeleton, skeleton)
+                && posingCapability.Entity.TryGetCapability<FacialControlCapability>(out var facialCapability))
+                facialCapability.UpdateAndApply(skeleton);
+
             skeleton.UpdateCachedTransforms();
             ReparentPartials(skeleton);
             skeleton.UpdateCachedTransforms();

@@ -43,11 +43,11 @@ public unsafe class PosingOverlayWindow : MediatorWindow
 
     private readonly PosingTransformEditor _posingTransformEditor = new();
 
-    private readonly List<OverlayItem> _selectingFrom = [with(256)];
-    private List<OverlayItem> _clickables = [with(256)];
+    private readonly List<OverlayItem> _selectingFrom = new(256);
+    private List<OverlayItem> _clickables = new(256);
 
-    private readonly List<int> _clickedIndices = [with(10)];
-    private readonly List<int> _hoveredIndices = [with(10)];
+    private readonly List<int> _clickedIndices = new(10);
+    private readonly List<int> _hoveredIndices = new(10);
 
     private Transform? _trackingTransform;
 

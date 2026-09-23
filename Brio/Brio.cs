@@ -8,6 +8,7 @@ using Brio.Game.Chat;
 using Brio.Game.Core;
 using Brio.Game.Cutscene;
 using Brio.Game.GPose;
+using Brio.Game.Facial;
 using Brio.Game.Input;
 using Brio.Game.Posing;
 using Brio.Game.World;
@@ -49,7 +50,7 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
     public const int MajorAPIVersion = 3;
     public const int MinorAPIVersion = 0;
 
-    public const string Name = "BRIO";
+    public const string Name = "BRIO FACIAL";
 
     private readonly IDalamudPluginInterface _pluginInterface = pluginInterface;
     private static ServiceProvider? _services = null;
@@ -250,6 +251,7 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
         serviceCollection.AddSingleton<FestivalService>();
         serviceCollection.AddSingleton<WorldRenderingService>();
         serviceCollection.AddSingleton<SkeletonService>();
+        serviceCollection.AddSingleton<FacialControlService>();
         serviceCollection.AddSingleton<PosingService>();
         serviceCollection.AddSingleton<IKService>();
         serviceCollection.AddSingleton<CameraService>();

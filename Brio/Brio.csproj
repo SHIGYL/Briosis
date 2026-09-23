@@ -9,7 +9,8 @@
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<Version>0.0.0.1</Version>
+		<AssemblyName>BrioFacial</AssemblyName>
+		<Version>0.8.0.11</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -40,7 +41,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Brio.json">
+		<None Update="BrioFacial.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

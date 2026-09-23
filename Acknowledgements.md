@@ -5,6 +5,7 @@ Brio wouldn't be possible without the tireless work of many devs across many pro
 A special thanks goes to:
 * [Anamnesis](https://github.com/imchillin/Anamnesis)
 * [Ktisis](https://github.com/ktisis-tools/Ktisis)
+  * Brio Facial's facial action-unit schemas, slider behavior, and Havok blend/propagation algorithm are adapted from Ktisis commit `e44fb51873119a05e4943cf08d6c124c6a9dfd04` under GPL-3.0. The Brio integration and lifecycle handling were rewritten for Brio's architecture.
 * [Dalamud](https://github.com/goatcorp/Dalamud/)
 * [Penumbra](https://github.com/xivdev/Penumbra)
 * [Glamourer](https://github.com/Ottermandias/Glamourer)
