@@ -40,6 +40,10 @@ jobs:
       - name: Build and package
         run: dotnet build Briosis.slnx --configuration Release --no-restore
 
+      - name: Validate embedded resources
+        shell: pwsh
+        run: ./scripts/Validate-EmbeddedResources.ps1
+
       - name: Verify and stage installable archive
         shell: pwsh
         run: |

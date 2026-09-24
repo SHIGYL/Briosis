@@ -1,16 +1,6 @@
-# Briosis v0.1.0.0
+# Briosis v0.1.0.1
 
-Initial public release of Briosis, a community GPose toolkit based on Brio with facial-control functionality adapted from and inspired by Ktisis.
+Hotfix
 
-Highlights:
-
-- Brio-based GPose posing toolkit
-- Ktisis-style facial expression controls
-- Facial Presets
-- Tongue Profiles
-- Geometry-normalized procedural Tongue Out controller
-- Manual tongue-bone fine tuning
-- Undo/Redo integration
-- Persistent facial presets and tongue profiles
-
-Briosis is not an official Brio or Ktisis release. Disable the original Brio before enabling Briosis.
+- Fixed embedded resource lookup after the Briosis project rename.
+- Fixed startup failure where `Language.en.json` could not be found in custom-repository installs.

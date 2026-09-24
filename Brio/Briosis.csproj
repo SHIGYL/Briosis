@@ -10,7 +10,8 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<AssemblyName>Briosis</AssemblyName>
-		<Version>0.1.0.0</Version>
+		<RootNamespace>Brio</RootNamespace>
+		<Version>0.1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

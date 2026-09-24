@@ -3,10 +3,11 @@
 ## Automated/local checks
 
 - [x] Release build succeeds for `Briosis.slnx`.
-- [x] Assembly name and version are `Briosis` / `0.1.0.0`.
+- [x] Assembly name and version are `Briosis` / `0.1.0.1`.
 - [x] Generated manifest uses `Name` and `InternalName` `Briosis`.
 - [x] Manifest and custom repository target Dalamud API level 15.
-- [x] `repo.json` metadata and release URLs match version `0.1.0.0`.
+- [x] `repo.json` metadata and release URLs match version `0.1.0.1`.
+- [x] Critical embedded resources use the deterministic `Brio.Resources.Embedded.*` manifest prefix.
 - [x] Installable ZIP contains `Briosis.dll`, `Briosis.json`, and runtime dependencies.
 - [x] Installable ZIP contains no PDBs, source files, local configs, presets, or legacy `BrioFacial` binaries.
 - [x] Source scan found no known token/password patterns in the publication tree.
