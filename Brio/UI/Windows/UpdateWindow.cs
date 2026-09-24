@@ -9,13 +9,11 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using SharpYaml;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Brio.UI.Windows;
 
@@ -27,12 +25,9 @@ public class UpdateWindow : Window
     private static float CloseButtonWidth => 310f * ImGuiHelpers.GlobalScale;
 
     private bool _scrollToTop = false;
+    private readonly ChangelogFile _changelogFile;
 
-    private ChangelogFile? _changelogFile;
-    private readonly List<string> _supporters = [];
-    private readonly List<string> _contributors = [];
-
-    public UpdateWindow() : base($"   {Brio.Name} CHANGLOG [{ConfigurationService.Instance.Version}]###brio_welcomewindow", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoDecoration)
+    public UpdateWindow() : base($"   {Brio.Name} CHANGELOG [{ConfigurationService.Instance.Version}]###brio_welcomewindow", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoDecoration)
     {
         Namespace = "brio_welcomewindow_namespace";
 
@@ -42,51 +37,28 @@ public class UpdateWindow : Window
         AllowClickthrough = false;
         AllowPinning = false;
         AllowBackgroundBlur = false;
+
+        _changelogFile = LoadChangelog();
     }
 
-    public Task LoadData()
+    private static ChangelogFile LoadChangelog()
     {
-        return Task.Run(() =>
+        using var changelogStream = ResourceProvider.Instance.GetRawResourceStream("Changelog.changelog.yaml");
+        using var streamReader = new StreamReader(changelogStream, Encoding.UTF8, true, 128);
+
+        var yamlOptions = new YamlSerializerOptions
         {
-            string? line;
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = YamlIgnoreCondition.WhenReading,
+        };
 
-            var kofiStream = ResourceProvider.Instance.GetRawResourceStream("Changelog.kofi.txt");
-            var patreonStream = ResourceProvider.Instance.GetRawResourceStream("Changelog.patreon.txt");
-            var contributorsStream = ResourceProvider.Instance.GetRawResourceStream("Changelog.contributors.txt");
-
-            using var streamReader = new StreamReader(kofiStream, Encoding.UTF8, true, 128);
-            while((line = streamReader.ReadLine()) is not null)
-                _supporters.Add(line);
-
-            using var streamReader2 = new StreamReader(patreonStream, Encoding.UTF8, true, 128);
-            while((line = streamReader2.ReadLine()) is not null)
-                _supporters.Add(line);
-
-            using var streamReader3 = new StreamReader(contributorsStream, Encoding.UTF8, true, 128);
-            while((line = streamReader3.ReadLine()) is not null)
-                _contributors.Add(line);
-
-            //
-
-            var changelogStream = ResourceProvider.Instance.GetRawResourceStream("Changelog.changelog.yaml");
-            using var streamReader4 = new StreamReader(changelogStream, Encoding.UTF8, true, 128);
-
-            var yamlOptions = new YamlSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = YamlIgnoreCondition.WhenReading,
-            };
-
-            var yaml = streamReader4.ReadToEnd();
-            _changelogFile = YamlSerializer.Deserialize<ChangelogFile>(yaml, yamlOptions);
-        });
+        var yaml = streamReader.ReadToEnd();
+        return YamlSerializer.Deserialize<ChangelogFile>(yaml, yamlOptions)
+            ?? throw new InvalidDataException("Unable to deserialize the Briosis changelog.");
     }
 
     public override void OnOpen()
     {
-        if(_changelogFile is null)
-            LoadData().Wait();
-
         _scrollToTop = true;
     }
     public override void PreDraw()
@@ -98,7 +70,6 @@ public class UpdateWindow : Window
 
     //
 
-    int selected = 0;
     public override void Draw()
     {
         ImBrio.BlurWindow();
@@ -106,40 +77,21 @@ public class UpdateWindow : Window
         var windowPos = ImGui.GetWindowPos();
         var windowPadding = ImGui.GetStyle().WindowPadding;
 
-        var headerWidth = 1000f - (windowPadding.X * 2 * ImGuiHelpers.GlobalScale);
-        var headerHeight = 500f * ImGuiHelpers.GlobalScale;
-
-        var headerStart = windowPos + new Vector2(1, 25);
-
-        // Image
-
-        var image = ResourceProvider.Instance.GetResourceImage($"Changelog.Images.brio-artbk-jun-800.png");
-
-        // Calculate scaling to fill width and maintain aspect ratio
-        var imageAspect = (float)(image.Width / image.Height);
-        var scaledWidth = headerWidth / 1.4f * ImGuiHelpers.GlobalScale;
-        var scaledHeight = scaledWidth / imageAspect;
-
-        var imagePos = headerStart;
-
-        var drawList = ImGui.GetWindowDrawList();
-        drawList.AddImage(image.Handle, imagePos, imagePos + new Vector2(scaledWidth, scaledHeight));
-
-        headerStart = new Vector2(headerStart.X, headerStart.Y + scaledHeight);
+        var headerWidth = ImGui.GetWindowSize().X - (windowPadding.X * 2);
+        var headerHeight = 76f * ImGuiHelpers.GlobalScale;
+        var headerStart = windowPos + windowPadding;
         var headerEnd = headerStart + new Vector2(headerWidth, headerHeight);
 
         // Background
         DrawBackground(headerStart, headerEnd);
 
         // Cursor line up
-        ImGui.SetCursorScreenPos(headerStart);
+        ImGui.SetCursorScreenPos(headerStart + new Vector2(10f, 10f) * ImGuiHelpers.GlobalScale);
 
         // Tagline Text
-        ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 20);
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 10);
-        ImGui.TextColored(new Vector4(0.4f, 0.9f, 0.4f, 1.0f), _changelogFile?.Tagline);
+        ImGui.TextColored(new Vector4(0.4f, 0.9f, 0.4f, 1.0f), _changelogFile.Tagline);
         ImGui.SameLine();
-        ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.85f, 1.0f), $"  -  {_changelogFile?.Subline}");
+        ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.85f, 1.0f), $"  -  {_changelogFile.Subline}");
         ImBrio.VerticalPadding(5);
 
         // Buttons
@@ -169,44 +121,22 @@ public class UpdateWindow : Window
 
         ImBrio.VerticalPadding(10);
 
-        // Selector
-        ImBrio.ButtonSelectorStrip("brio_changelog_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [" Changelog ", "Supporters & Contributors"]);
-
-        if(selected == 0)
-        {
-            using(ImRaii.PushColor(ImGuiCol.ChildBg, 0))
-            using(var c = ImRaii.Child("###brio_changelog", new Vector2(ImGui.GetWindowHeight() - 55 * ImGuiHelpers.GlobalScale, ImBrio.GetRemainingHeight() - 44), false,
-                Flags = ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
-                if(c.Success)
+        using(ImRaii.PushColor(ImGuiCol.ChildBg, 0))
+        using(var c = ImRaii.Child("###brio_changelog", new Vector2(ImGui.GetWindowHeight() - 55 * ImGuiHelpers.GlobalScale, ImBrio.GetRemainingHeight() - 44), false,
+            Flags = ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse))
+            if(c.Success)
+            {
+                if(_scrollToTop)
                 {
-                    if(_scrollToTop)
-                    {
-                        _scrollToTop = false;
-                        ImGui.SetScrollHereY(0);
-                    }
-
-                    foreach(var entry in _changelogFile?.Changelog ?? [])
-                        DrawChangelogTemplate(entry);
-
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-                    ImGui.Spacing();
-
-                    ImBrio.VerticalPadding(15);
+                    _scrollToTop = false;
+                    ImGui.SetScrollHereY(0);
                 }
-        }
-        else
-        {
-            ImBrio.VerticalPadding(5);
-            ImGui.Text("Maintained & Developed by: Minmoose. Originally Developed by: Asgard. Happy Posing!");
-            ImBrio.VerticalPadding(10);
 
-            DrawSupporters();
-        }
+                foreach(var entry in _changelogFile.Changelog)
+                    DrawChangelogTemplate(entry);
+
+                ImBrio.VerticalPadding(15);
+            }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - CloseButtonWidth) / 2);
         if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[HOLD TO CLOSE]\nTo open this window again click the `Information` button in Briosis."))
@@ -252,46 +182,6 @@ public class UpdateWindow : Window
         }
     }
 
-    public void DrawSupporters()
-    {
-        var slotSizes = ImGui.GetContentRegionAvail() / new Vector2(2, .8f);
-        slotSizes.Y -= 144 * ImGuiHelpers.GlobalScale;
-
-        using(var leftGearGroup = ImRaii.Child("leftGroup", slotSizes))
-        {
-            if(leftGearGroup.Success)
-            {
-                ImGui.Text("An enormous thank you to the following,");
-                ImGui.Text("people for their support on KoFi / Patreon!");
-
-                ImBrio.VerticalPadding(5);
-
-                foreach(var item in _supporters)
-                {
-                    ImGui.BulletText(item);
-                }
-            }
-        }
-
-        ImGui.SameLine();
-
-        using(var rightGearGroup = ImRaii.Child("rightGroup", slotSizes))
-        {
-            if(rightGearGroup.Success)
-            {
-                ImGui.Text("And another enormous thank you to the following,");
-                ImGui.Text("people for their contributions to Briosis and upstream Brio!");
-
-                ImBrio.VerticalPadding(5);
-
-                foreach(var item in _contributors)
-                {
-                    ImGui.BulletText(item);
-                }
-            }
-        }
-    }
-
     //
     // some code found here is modified and from CharacterSelect+
     // https://github.com/IcarusXIV/Character-Select- (link includes the -)
@@ -302,7 +192,7 @@ public class UpdateWindow : Window
         var drawList = ImGui.GetWindowDrawList();
         uint gradientTop = ImGui.GetColorU32(new Vector4(0.2f, 0.4f, 0.8f, 0.15f));
         uint gradientBottom = ImGui.GetColorU32(new Vector4(0.1f, 0.1f, 0.2f, 0.05f));
-        drawList.AddRectFilledMultiColor(headerStart, headerEnd * ImGuiHelpers.GlobalScale, gradientTop, gradientTop, gradientBottom, gradientBottom);
+        drawList.AddRectFilledMultiColor(headerStart, headerEnd, gradientTop, gradientTop, gradientBottom, gradientBottom);
     }
 
     private static bool CollapsingHeader(string title, string subTitle, Vector4 titleColor, bool defaultOpen)

@@ -5,7 +5,7 @@
 `Briosis` is a separate community fork based on Brio `v0.8.0.11` with the Ktisis facial action-unit controls integrated into Brio's actor capability and skeleton-update architecture.
 
 - Plugin identity: `Briosis` / `Briosis`.
-- Assembly: `Briosis.dll`, version `0.1.0.1`.
+- Assembly: `Briosis.dll`, version `0.1.0.2`.
 - Main command: `/briosis`.
 - Reference behavior and data: Ktisis commit `e44fb51873119a05e4943cf08d6c124c6a9dfd04` (installed version `0.4.1.2`).
 - Upstream Brio source revision: `8d45c2950f2f0c212c821a5194beb8d5a7a4a18c` (tag `v0.8.0.11`).
@@ -127,7 +127,7 @@ Build-compatibility-only changes required by the current API/toolchain:
 - All 18 copied expression files have the same SHA-256 hashes as the reference checkout.
 - Every schema parses as JSON and contains 20 controls.
 - The final assembly contains all 18 expression resources.
-- Final assembly name/version and generated manifest are `Briosis` / `0.1.0.1` with `InternalName` `Briosis`.
+- Final assembly name/version and generated manifest are `Briosis` / `0.1.0.2` with `InternalName` `Briosis`.
 - No new signature scan, hook, or numeric native-structure offset was added.
 
 ## Known limitations
