@@ -74,31 +74,36 @@ public class UpdateWindow : Window
     {
         ImBrio.BlurWindow();
 
-        var windowPos = ImGui.GetWindowPos();
-        var windowPadding = ImGui.GetStyle().WindowPadding;
-
-        var headerWidth = ImGui.GetWindowSize().X - (windowPadding.X * 2);
-        var headerHeight = 76f * ImGuiHelpers.GlobalScale;
-        var headerStart = windowPos + windowPadding;
+        var style = ImGui.GetStyle();
+        var scale = ImGuiHelpers.GlobalScale;
+        var headerStart = ImGui.GetCursorScreenPos();
+        var headerWidth = ImGui.GetContentRegionAvail().X;
+        var headerPadding = new Vector2(10f, 8f) * scale;
+        var subtitleHeight = ImGui.GetTextLineHeight();
+        var subtitleButtonSpacing = 6f * scale;
+        var buttonHeight = ImGui.GetTextLineHeight() * 1.7f;
+        var headerBottomPadding = 8f * scale;
+        var headerHeight = headerPadding.Y + subtitleHeight + subtitleButtonSpacing + buttonHeight + headerBottomPadding;
         var headerEnd = headerStart + new Vector2(headerWidth, headerHeight);
 
         // Background
         DrawBackground(headerStart, headerEnd);
 
         // Cursor line up
-        ImGui.SetCursorScreenPos(headerStart + new Vector2(10f, 10f) * ImGuiHelpers.GlobalScale);
+        ImGui.SetCursorScreenPos(headerStart + headerPadding);
 
         // Tagline Text
         ImGui.TextColored(new Vector4(0.4f, 0.9f, 0.4f, 1.0f), _changelogFile.Tagline);
         ImGui.SameLine();
         ImGui.TextColored(new Vector4(0.75f, 0.75f, 0.85f, 1.0f), $"  -  {_changelogFile.Subline}");
-        ImBrio.VerticalPadding(5);
-
         // Buttons
-        var segmentSize = ImGui.GetWindowSize().X / 4.15f;
-        var buttonSize = new Vector2(segmentSize, ImGui.GetTextLineHeight() * 1.7f);
-
-        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 5);
+        var buttonRowStart = new Vector2(
+            headerStart.X + headerPadding.X,
+            headerStart.Y + headerPadding.Y + subtitleHeight + subtitleButtonSpacing);
+        var buttonRowWidth = headerWidth - (headerPadding.X * 2f);
+        var buttonWidth = (buttonRowWidth - (style.ItemSpacing.X * 3f)) / 4f;
+        var buttonSize = new Vector2(buttonWidth, buttonHeight);
+        ImGui.SetCursorScreenPos(buttonRowStart);
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(0, 224, 148, 200) / 255))
             if(ImGui.Button("Briosis GitHub", buttonSize))
@@ -119,7 +124,7 @@ public class UpdateWindow : Window
             if(ImGui.Button("Credits", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://github.com/SHIGYL/Briosis/blob/main/Acknowledgements.md", UseShellExecute = true });
 
-        ImBrio.VerticalPadding(10);
+        ImGui.SetCursorScreenPos(new Vector2(headerStart.X, headerEnd.Y + (8f * scale)));
 
         using(ImRaii.PushColor(ImGuiCol.ChildBg, 0))
         using(var c = ImRaii.Child("###brio_changelog", new Vector2(ImGui.GetWindowHeight() - 55 * ImGuiHelpers.GlobalScale, ImBrio.GetRemainingHeight() - 44), false,
