@@ -3,6 +3,8 @@ using Brio.Services;
 using Brio.Services.MediatorMessages;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Hooking;
+using Dalamud.Interface.ImGuiNotification;
+using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
@@ -11,6 +13,7 @@ using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Common.Math;
 using System;
+using System.Linq;
 
 using NativeCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
 
@@ -18,7 +21,8 @@ namespace Brio.Game.GPose;
 
 public unsafe class GPoseService : MediatorSubscriberBase
 {
-    public bool IsGPosing => _isInFakeGPose || _isInGPose;
+    public bool IsGPosing => _isInFakeGPose || (_isInGPose && !IsSuppressedByBrioConflict);
+    public bool IsSuppressedByBrioConflict { get; private set; }
 
     public delegate void OnGPoseStateDelegate(bool newState);
     public event OnGPoseStateDelegate? OnGPoseStateChange;
@@ -54,19 +58,27 @@ public unsafe class GPoseService : MediatorSubscriberBase
     private readonly IFramework _framework;
     private readonly IClientState _clientState;
     private readonly ConfigurationService _configService;
+    private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly INotificationManager _notificationManager;
+
+    private bool _conflictWarningShown;
 
     public const string BrioHiddenName = "[HIDDEN]";
 
     private delegate void HeightScaleUpdateDelegate(nint effectContainer, float targetY);
     private readonly Hook<HeightScaleUpdateDelegate> _heightScaleUpdateHook;
 
-    public GPoseService(IFramework framework, IClientState clientState, Mediator mediator, ConfigurationService configService, IGameInteropProvider interopProvider, ISigScanner scanner) : base(mediator)
+    public GPoseService(IFramework framework, IClientState clientState, Mediator mediator, ConfigurationService configService, IGameInteropProvider interopProvider, ISigScanner scanner, IDalamudPluginInterface pluginInterface, INotificationManager notificationManager) : base(mediator)
     {
         _framework = framework;
         _clientState = clientState;
         _configService = configService;
+        _pluginInterface = pluginInterface;
+        _notificationManager = notificationManager;
 
         _isInGPose = _clientState.IsGPosing;
+        if(_isInGPose && IsOriginalBrioLoaded())
+            SuppressForBrioConflict();
 
         UIModule* uiModule = Framework.Instance()->UIModule;
         var enterGPoseAddress = (nint)uiModule->VirtualTable->EnterGPose;
@@ -175,17 +187,36 @@ public unsafe class GPoseService : MediatorSubscriberBase
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        // Only detect if we got snapped out
-        if(!_clientState.IsGPosing && _isInGPose)
-            HandleGPoseStateChange(_clientState.IsGPosing);
+        // IClientState.IsGPosing is the public Dalamud source of truth. The enter/exit
+        // hooks provide immediate notification, while this keeps both transitions in
+        // sync if GPose is entered or left through another path.
+        var isInGPose = _clientState.IsGPosing;
+        if(isInGPose != _isInGPose)
+            HandleGPoseStateChange(isInGPose);
     }
 
     private void HandleGPoseStateChange(bool newState)
     {
-        if(IsGPosing == newState || _isInFakeGPose)
+        if(_isInGPose == newState || _isInFakeGPose)
             return;
 
         _isInGPose = newState;
+
+        if(newState && IsOriginalBrioLoaded())
+        {
+            SuppressForBrioConflict();
+            UpdateDynamicHooks();
+            return;
+        }
+
+        if(!newState && IsSuppressedByBrioConflict)
+        {
+            IsSuppressedByBrioConflict = false;
+            _conflictWarningShown = false;
+            UpdateDynamicHooks();
+            Brio.Log.Information("Left GPose; cleared the Brio/Briosis conflict guard.");
+            return;
+        }
 
         Mediator.Publish(new GposeStateChangedMessage(newState));
 
@@ -197,6 +228,46 @@ public unsafe class GPoseService : MediatorSubscriberBase
         UpdateDynamicHooks();
 
         TriggerGPoseChange();
+    }
+
+    private bool IsOriginalBrioLoaded()
+    {
+        try
+        {
+            return _pluginInterface.InstalledPlugins.Any(plugin =>
+                plugin.IsLoaded && string.Equals(plugin.InternalName, "Brio", StringComparison.Ordinal));
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Warning(ex, "Unable to determine whether the original Brio plugin is loaded.");
+            return false;
+        }
+    }
+
+    private void SuppressForBrioConflict()
+    {
+        IsSuppressedByBrioConflict = true;
+
+        if(_conflictWarningShown)
+            return;
+
+        _conflictWarningShown = true;
+        Brio.Log.Warning("Original Brio is loaded; suppressing Briosis for the current GPose session.");
+
+        try
+        {
+            _notificationManager.AddNotification(new Notification
+            {
+                Title = "Brio and Briosis are both enabled",
+                Content = "Both plugins use the same GPose systems and cannot safely display their GPose interfaces at the same time.\n\nDisable either Brio or Briosis, then re-enter GPose.",
+                Type = NotificationType.Warning,
+                RespectUiHidden = false
+            });
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Warning(ex, "Unable to display the Brio/Briosis conflict warning.");
+        }
     }
 
     private void UpdateDynamicHooks()

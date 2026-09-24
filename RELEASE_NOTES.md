@@ -1,6 +1,8 @@
-# Briosis v0.1.0.2
+# Briosis v0.1.0.3
 
-Hotfix
+Coexistence update
 
-- Replaced the legacy Brio changelog with Briosis-specific release notes.
-- Removed blocking changelog parsing and legacy image loading from the `UiBuilder.Draw` path.
+- Added a GPose-session conflict guard when the original Brio is active.
+- Moved Briosis IPC providers from `Brio.*` to `Briosis.*`.
+- Removed the legacy `/xat` and `/mcdf` command aliases; `/briosis mcdf` remains available.
+- Moved the optional Briosis Web API to `http://localhost:42429/briosis`.

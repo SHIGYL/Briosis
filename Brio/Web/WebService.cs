@@ -8,6 +8,9 @@ namespace Brio.Web;
 
 public class WebService : IDisposable
 {
+    private const string WebServerUrl = "http://localhost:42429/";
+    private const string WebApiRoute = "/briosis";
+
     public bool IsRunning => _shouldBeRunning && _webServer != null && _webServer.State == WebServerState.Listening;
 
     private bool _shouldBeRunning = false;
@@ -49,11 +52,10 @@ public class WebService : IDisposable
 
         try
         {
-            var url = "http://localhost:42428/";
             var server = new WebServer(o => o
-            .WithUrlPrefix(url)
+            .WithUrlPrefix(WebServerUrl)
             .WithMode(HttpListenerMode.EmbedIO))
-             .WithWebApi("/brio", m => m.WithController(() => ActivatorUtilities.CreateInstance<ActorWebController>(_serviceProvider))
+             .WithWebApi(WebApiRoute, m => m.WithController(() => ActivatorUtilities.CreateInstance<ActorWebController>(_serviceProvider))
             );
 
             server.Start();

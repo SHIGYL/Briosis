@@ -269,6 +269,9 @@ public class UIManager : IDisposable
 
     private void DrawUI()
     {
+        if(_gPoseService.IsSuppressedByBrioConflict)
+            return;
+
         try
         {
             BrioStyle.PushStyle();

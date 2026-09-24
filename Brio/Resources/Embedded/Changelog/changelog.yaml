@@ -1,10 +1,23 @@
 tagline: "Briosis"
 subline: "Community GPose posing toolkit"
 changelog:
+  - name: "v0.1.0.3"
+    tagline: "Brio coexistence update"
+    date: "September 24th 2026"
+    isCurrent: true
+    versions:
+      - number: "0.1.0.3"
+        icon: ""
+        items:
+          - "Added a GPose-session conflict guard when the original Brio is active."
+          - "Moved Briosis IPC providers to their own Briosis.* labels."
+          - "Removed the legacy /xat and /mcdf command aliases."
+          - "Moved the optional Briosis Web API to localhost:42429/briosis."
+
   - name: "v0.1.0.2"
     tagline: "Changelog performance hotfix"
     date: "September 24th 2026"
-    isCurrent: true
+    isCurrent: false
     versions:
       - number: "0.1.0.2"
         icon: ""

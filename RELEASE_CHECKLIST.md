@@ -3,10 +3,10 @@
 ## Automated/local checks
 
 - [x] Release build succeeds for `Briosis.slnx`.
-- [x] Assembly name and version are `Briosis` / `0.1.0.2`.
+- [x] Assembly name and version are `Briosis` / `0.1.0.3`.
 - [x] Generated manifest uses `Name` and `InternalName` `Briosis`.
 - [x] Manifest and custom repository target Dalamud API level 15.
-- [x] `repo.json` metadata and release URLs match version `0.1.0.2`.
+- [x] `repo.json` metadata and release URLs match version `0.1.0.3`.
 - [x] Critical embedded resources use the deterministic `Brio.Resources.Embedded.*` manifest prefix.
 - [x] Installable ZIP contains `Briosis.dll`, `Briosis.json`, and runtime dependencies.
 - [x] Installable ZIP contains no PDBs, source files, local configs, presets, or legacy `BrioFacial` binaries.
@@ -29,6 +29,10 @@
 12. Confirm the missing/empty user PathStore initializes silently.
 13. If testing corruption handling, provide a non-empty invalid PathStore and confirm a clear error is logged without crashing the plugin.
 14. Confirm `/briosis` opens the plugin and the Plugin Installer identifies it separately from Brio.
+15. Enable Brio and Briosis together, enter GPose, and confirm Briosis suppresses its GPose lifecycle/UI with one warning.
+16. Leave GPose, disable Brio, re-enter GPose, and confirm Briosis starts normally without restarting the game.
+17. Confirm Briosis registers no `/xat` or `/mcdf` aliases and `/briosis mcdf` still works.
+18. With both Web APIs enabled, confirm Brio uses port 42428 and Briosis responds on `http://localhost:42429/briosis`.
 
 ## Post-publication verification
 

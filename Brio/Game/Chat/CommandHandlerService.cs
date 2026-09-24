@@ -8,9 +8,7 @@ namespace Brio.Game.Chat;
 
 public class CommandHandlerService : IDisposable
 {
-    private const string BrioCommandName = "/briosis";
-    private const string XATCommandName = "/xat";
-    private const string MCDFCommandName = "/mcdf";
+    private const string BriosisCommandName = "/briosis";
 
     private readonly ICommandManager _commandManager;
     private readonly IChatGui _chatGui;
@@ -24,31 +22,15 @@ public class CommandHandlerService : IDisposable
         _uiManager = uiManager;
         _mediator = mediator;
 
-        _commandManager.AddHandler(BrioCommandName, new CommandInfo(OnCommand)
+        _commandManager.AddHandler(BriosisCommandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "Toggles the Briosis window.",
             ShowInHelp = true,
-        });
-        _commandManager.AddHandler(XATCommandName, new CommandInfo(OnCommand)
-        {
-            HelpMessage = "Toggles the Briosis window.",
-            ShowInHelp = false,
-        });
-        _commandManager.AddHandler(MCDFCommandName, new CommandInfo(OnCommand)
-        {
-            HelpMessage = "Toggles Briosis's MCDF window.",
-            ShowInHelp = false,
         });
     }
 
     private void OnCommand(string command, string arguments)
     {
-        if(command == MCDFCommandName)
-        {
-            _uiManager.ToggleMCDFWindow();
-            return;
-        }
-
         if(arguments.Length == 0)
             arguments = "window";
 
@@ -95,13 +77,12 @@ public class CommandHandlerService : IDisposable
         _chatGui.Print("window - Toggle main Briosis window");
         _chatGui.Print("settings - Toggle Briosis settings window");
         _chatGui.Print("about - Toggle Briosis info window");
+        _chatGui.Print("mcdf - Toggle Briosis MCDF window");
         _chatGui.Print("help - Print this help prompt");
     }
 
     public void Dispose()
     {
-        _commandManager.RemoveHandler(BrioCommandName);
-        _commandManager.RemoveHandler(XATCommandName);
-        _commandManager.RemoveHandler(MCDFCommandName);
+        _commandManager.RemoveHandler(BriosisCommandName);
     }
 }
