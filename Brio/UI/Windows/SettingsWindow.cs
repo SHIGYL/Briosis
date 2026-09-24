@@ -188,7 +188,7 @@ public class SettingsWindow : Window
     private void DrawOpenBrioSetting()
     {
         var selectedBrioOpenBehavior = _configurationService.Configuration.Interface.OpenBrioBehavior;
-        const string label = "Open Brio";
+        const string label = "Open Briosis";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X - 20);
         using(var combo = ImRaii.Combo(label, selectedBrioOpenBehavior.ToString()))
         {
@@ -233,7 +233,7 @@ public class SettingsWindow : Window
     private void DrawGeneralSettings()
     {
         bool censorActorNames = _configurationService.Configuration.Interface.CensorActorNames;
-        if(ImGui.Checkbox("Censor Actor Names Across Brio", ref censorActorNames))
+        if(ImGui.Checkbox("Censor Actor Names Across Briosis", ref censorActorNames))
         {
             _configurationService.Configuration.Interface.CensorActorNames = censorActorNames;
             _configurationService.ApplyChange();
@@ -246,7 +246,7 @@ public class SettingsWindow : Window
             _configurationService.ApplyChange();
         }
 
-        ImBrio.SeparatorText("Brio's Theme");
+        ImBrio.SeparatorText("Briosis Theme");
 
         var currentThemeName = _configurationService.Configuration.Appearance.Theme;
         const string themeLabel = "Theme";
@@ -406,24 +406,24 @@ public class SettingsWindow : Window
 
     private void DrawBrioIPC()
     {
-        if(ImGui.CollapsingHeader("Brio API & IPC"))
+        if(ImGui.CollapsingHeader("Briosis API & IPC"))
         {
             bool enableBrioIpc = _configurationService.Configuration.IPC.EnableBrioIPC;
-            if(ImGui.Checkbox("Enable Brio IPC", ref enableBrioIpc))
+            if(ImGui.Checkbox("Enable Briosis IPC", ref enableBrioIpc))
             {
                 _configurationService.Configuration.IPC.EnableBrioIPC = enableBrioIpc;
                 _configurationService.ApplyChange();
             }
-            ImGui.Text($"Brio IPC Status: {(enableBrioIpc ? "Active" : "Inactive")}");
+            ImGui.Text($"Briosis IPC Status: {(enableBrioIpc ? "Active" : "Inactive")}");
 
             bool enableWebApi = _configurationService.Configuration.IPC.AllowWebAPI;
-            if(ImGui.Checkbox("Enable Brio API", ref enableWebApi))
+            if(ImGui.Checkbox("Enable Briosis API", ref enableWebApi))
             {
                 _configurationService.Configuration.IPC.AllowWebAPI = enableWebApi;
                 _configurationService.ApplyChange();
             }
 
-            ImGui.Text($"Brio API Status: {(_webService.IsRunning ? "Active" : "Inactive")}");
+            ImGui.Text($"Briosis API Status: {(_webService.IsRunning ? "Active" : "Inactive")}");
         }
     }
 
@@ -432,14 +432,14 @@ public class SettingsWindow : Window
         if(ImGui.CollapsingHeader("Appearance", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool enableBrioColor = _configurationService.Configuration.Appearance.EnableBrioColor;
-            if(ImGui.Checkbox("Enable Brio Color", ref enableBrioColor))
+            if(ImGui.Checkbox("Enable Briosis Color", ref enableBrioColor))
             {
                 _configurationService.Configuration.Appearance.EnableBrioColor = enableBrioColor;
                 _configurationService.ApplyChange();
             }
 
             bool enableBrioScale = _configurationService.Configuration.Appearance.EnableBrioScale;
-            if(ImGui.Checkbox("Enable Brio Scale", ref enableBrioScale))
+            if(ImGui.Checkbox("Enable Briosis Scale", ref enableBrioScale))
             {
                 _configurationService.Configuration.Appearance.EnableBrioScale = enableBrioScale;
                 _configurationService.ApplyChange();
@@ -493,14 +493,14 @@ public class SettingsWindow : Window
             }
 
             bool enableBrioTargetChange = _configurationService.Configuration.Posing.BrioTargetChangesWithGPose;
-            if(ImGui.Checkbox("Brio Target Changes with GPose Target", ref enableBrioTargetChange))
+        if(ImGui.Checkbox("Briosis Target Changes with GPose Target", ref enableBrioTargetChange))
             {
                 _configurationService.Configuration.Posing.BrioTargetChangesWithGPose = enableBrioTargetChange;
                 _configurationService.ApplyChange();
             }
 
             bool enableGPoseTargetChange = _configurationService.Configuration.Posing.GPoseTargetChangesWithBrio;
-            if(ImGui.Checkbox("GPose Target Changes with Brio Target", ref enableGPoseTargetChange))
+        if(ImGui.Checkbox("GPose Target Changes with Briosis Target", ref enableGPoseTargetChange))
             {
                 _configurationService.Configuration.Posing.GPoseTargetChangesWithBrio = enableGPoseTargetChange;
                 _configurationService.ApplyChange();

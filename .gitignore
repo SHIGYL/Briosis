@@ -1,4 +1,6 @@
 publish/
+artifacts/
+release-staging/
 \.vs/
 \.idea/
 .vscode/
@@ -12,3 +14,12 @@ obj/
 *.sdf
 *.opensdf
 *.pdb
+*.log
+*.dmp
+*.dump
+*.zip
+.env
+.env.*
+!.env.example
+local-config/
+local-presets/

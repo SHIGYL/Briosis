@@ -614,7 +614,7 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
 
             ImGui.Checkbox("Loop", ref _cutsceneManager.CameraSettings.Loop);
 
-            ImGui.Checkbox("Hide Brio On Play  (Press 'Shift + B' to Stop Cutscene)", ref _cutsceneManager.CloseWindowsOnPlay);
+                ImGui.Checkbox("Hide Briosis On Play  (Press 'Shift + B' to Stop Cutscene)", ref _cutsceneManager.CloseWindowsOnPlay);
 
             ImGui.Separator();
             ImBrio.VerticalPadding(2);

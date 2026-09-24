@@ -1,5 +1,7 @@
 using Brio.Entities.Camera;
 using Brio.Entities.World;
+using Brio.Config;
+using Brio.Game.Facial;
 using Brio.Game.World;
 using Brio.Services.Models;
 using Dalamud.Plugin;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using BrioJsonSerializer = global::Brio.Core.JsonSerializer;
 
 namespace Brio.Services;
 
@@ -16,6 +19,8 @@ public enum PresetType : int
 {
     Light = 1,
     Camera = 2,
+    Facial = 3,
+    Tongue = 4,
 }
 
 [MessagePackObject]
@@ -46,13 +51,15 @@ public class PresetSystem
 
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly LightingService _lightingService;
+    private readonly ConfigurationService _configurationService;
 
     private readonly Dictionary<PresetType, BrioPresets> _presets = [];
 
-    public PresetSystem(IDalamudPluginInterface pluginInterface, LightingService lightingService)
+    public PresetSystem(IDalamudPluginInterface pluginInterface, LightingService lightingService, ConfigurationService configurationService)
     {
         _pluginInterface = pluginInterface;
         _lightingService = lightingService;
+        _configurationService = configurationService;
 
         foreach(PresetType type in Enum.GetValues<PresetType>())
         {
@@ -69,6 +76,15 @@ public class PresetSystem
 
     public IReadOnlyList<Preset> GetPresets(PresetType type)
         => _presets[type].Presets;
+
+    public Preset? FindPresetByName(PresetType type, string name, Preset? exclude = null)
+    {
+        var normalizedName = name.Trim();
+        return _presets[type].Presets.FirstOrDefault(preset =>
+            !ReferenceEquals(preset, exclude)
+            && !string.Equals(preset.Path, exclude?.Path, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(preset.Name.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+    }
 
     //
 
@@ -95,6 +111,127 @@ public class PresetSystem
         => LoadPreset<LightDTO>(preset);
     public List<CameraDTO> LoadCameraPreset(Preset preset)
         => LoadPreset<CameraDTO>(preset);
+
+    public Preset? SaveFacialPreset(string name, IReadOnlyDictionary<string, float> controls)
+    {
+        var file = new FacialPresetFile
+        {
+            Version = 1,
+            Name = name.Trim(),
+            Controls = controls.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+        return SaveJsonPreset(PresetType.Facial, file.Name, file, file.Controls.Count);
+    }
+
+    public FacialPresetFile? LoadFacialPreset(Preset preset)
+        => LoadJsonPreset<FacialPresetFile>(preset, PresetType.Facial);
+
+    public bool UpdateFacialPreset(Preset preset, IReadOnlyDictionary<string, float> controls)
+    {
+        if(preset.Type != PresetType.Facial)
+            return false;
+
+        var file = new FacialPresetFile
+        {
+            Version = 1,
+            Name = preset.Name,
+            Controls = controls.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+        return UpdateJsonPreset(preset, file, file.Controls.Count);
+    }
+
+    public Preset? SaveTongueProfile(string name, float rootWeight, float bodyWeight, float tipWeight, float visibleExtensionL, IReadOnlyDictionary<string, TongueBoneAdjustment>? boneAdjustments = null)
+    {
+        var file = new TongueProfileFile
+        {
+            Version = 2,
+            Name = name.Trim(),
+            RootWeight = rootWeight,
+            BodyWeight = bodyWeight,
+            TipWeight = tipWeight,
+            VisibleExtensionL = visibleExtensionL,
+            BoneAdjustments = boneAdjustments?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+        return SaveJsonPreset(PresetType.Tongue, file.Name, file, 4 + (file.BoneAdjustments?.Count ?? 0));
+    }
+
+    public TongueProfileFile? LoadTongueProfile(Preset preset)
+        => LoadJsonPreset<TongueProfileFile>(preset, PresetType.Tongue);
+
+    public bool UpdateTongueProfile(Preset preset, float rootWeight, float bodyWeight, float tipWeight, float visibleExtensionL, IReadOnlyDictionary<string, TongueBoneAdjustment>? boneAdjustments = null)
+    {
+        if(preset.Type != PresetType.Tongue)
+            return false;
+
+        var file = new TongueProfileFile
+        {
+            Version = 2,
+            Name = preset.Name,
+            RootWeight = rootWeight,
+            BodyWeight = bodyWeight,
+            TipWeight = tipWeight,
+            VisibleExtensionL = visibleExtensionL,
+            BoneAdjustments = boneAdjustments?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+        return UpdateJsonPreset(preset, file, 4 + (file.BoneAdjustments?.Count ?? 0));
+    }
+
+    public bool RenamePreset(Preset preset, string name)
+    {
+        name = name.Trim();
+        if(string.IsNullOrWhiteSpace(name))
+            return false;
+        if(FindPresetByName(preset.Type, name, preset) is not null)
+            return false;
+
+        try
+        {
+            if(preset.Type == PresetType.Facial)
+            {
+                var file = LoadFacialPreset(preset);
+                if(file is null)
+                    return false;
+                file.Name = name;
+                File.WriteAllText(preset.Path, BrioJsonSerializer.Serialize(file));
+            }
+            else if(preset.Type == PresetType.Tongue)
+            {
+                var file = LoadTongueProfile(preset);
+                if(file is null)
+                    return false;
+                file.Name = name;
+                File.WriteAllText(preset.Path, BrioJsonSerializer.Serialize(file));
+            }
+
+            preset.Name = name;
+            SavePresetData(preset.Type);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, $"Exception while renaming preset: {preset.Name}");
+            return false;
+        }
+    }
+
+    public Preset? GetDefaultTongueProfile()
+    {
+        var path = _configurationService.Configuration.Facial.DefaultTongueProfilePath;
+        if(string.IsNullOrEmpty(path))
+            return null;
+
+        return GetPresets(PresetType.Tongue).FirstOrDefault(preset => string.Equals(preset.Path, path, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public bool IsDefaultTongueProfile(Preset preset)
+        => preset.Type == PresetType.Tongue
+            && string.Equals(_configurationService.Configuration.Facial.DefaultTongueProfilePath, preset.Path, StringComparison.OrdinalIgnoreCase);
+
+    public void SetDefaultTongueProfile(Preset? preset)
+    {
+        _configurationService.Configuration.Facial.DefaultTongueProfilePath = preset?.Path ?? string.Empty;
+        _configurationService.Save();
+    }
 
     //
 
@@ -128,14 +265,88 @@ public class PresetSystem
     }
     private List<T> LoadPreset<T>(Preset preset)
         => Deserialize<T>(File.ReadAllBytes(preset.Path));
-    public void DeletePreset(Preset preset)
+    public bool DeletePreset(Preset preset)
     {
-        if(File.Exists(preset.Path))
-            File.Delete(preset.Path);
+        try
+        {
+            if(File.Exists(preset.Path))
+                File.Delete(preset.Path);
 
-        _presets[preset.Type].Presets.Remove(preset);
+            _presets[preset.Type].Presets.Remove(preset);
 
-        SavePresetData(preset.Type);
+            if(preset.Type == PresetType.Tongue && IsDefaultTongueProfile(preset))
+                SetDefaultTongueProfile(null);
+
+            SavePresetData(preset.Type);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, $"Exception while deleting preset: {preset.Name}");
+            return false;
+        }
+    }
+
+    private Preset? SaveJsonPreset<T>(PresetType type, string name, T data, int entryCount)
+    {
+        name = name.Trim();
+        if(string.IsNullOrWhiteSpace(name) || FindPresetByName(type, name) is not null)
+            return null;
+
+        var path = Path.Combine(PresetSaveFolder(type), $"{type.ToString().ToLowerInvariant()}-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(path, BrioJsonSerializer.Serialize(data!));
+            var preset = new Preset
+            {
+                Name = name,
+                Path = path,
+                Description = null,
+                Type = type,
+                EntryCount = entryCount,
+                Created = DateTime.UtcNow
+            };
+            _presets[type].Presets.Add(preset);
+            SavePresetData(type);
+            return preset;
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, $"Exception while saving new {type} preset: {name}");
+            return null;
+        }
+    }
+
+    private T? LoadJsonPreset<T>(Preset preset, PresetType expectedType) where T : class
+    {
+        if(preset.Type != expectedType)
+            return null;
+
+        try
+        {
+            return BrioJsonSerializer.Deserialize<T>(File.ReadAllText(preset.Path));
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, $"Exception while loading preset: {preset.Name}");
+            return null;
+        }
+    }
+
+    private bool UpdateJsonPreset<T>(Preset preset, T data, int entryCount)
+    {
+        try
+        {
+            File.WriteAllText(preset.Path, BrioJsonSerializer.Serialize(data!));
+            preset.EntryCount = entryCount;
+            SavePresetData(preset.Type);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, $"Exception while updating preset: {preset.Name}");
+            return false;
+        }
     }
 
     //

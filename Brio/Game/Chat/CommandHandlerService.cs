@@ -8,7 +8,7 @@ namespace Brio.Game.Chat;
 
 public class CommandHandlerService : IDisposable
 {
-    private const string BrioCommandName = "/briofacial";
+    private const string BrioCommandName = "/briosis";
     private const string XATCommandName = "/xat";
     private const string MCDFCommandName = "/mcdf";
 
@@ -26,17 +26,17 @@ public class CommandHandlerService : IDisposable
 
         _commandManager.AddHandler(BrioCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles the Brio Facial window.",
+            HelpMessage = "Toggles the Briosis window.",
             ShowInHelp = true,
         });
         _commandManager.AddHandler(XATCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles the Brio window.",
+            HelpMessage = "Toggles the Briosis window.",
             ShowInHelp = false,
         });
         _commandManager.AddHandler(MCDFCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles Brio's MCDF window.",
+            HelpMessage = "Toggles Briosis's MCDF window.",
             ShowInHelp = false,
         });
     }
@@ -90,11 +90,11 @@ public class CommandHandlerService : IDisposable
 
     private void PrintHelp()
     {
-        _chatGui.Print("Valid Brio Facial Commands Are:");
-        _chatGui.Print("<none> - Toggle main Brio Facial window");
-        _chatGui.Print("window - Toggle main Brio Facial window");
-        _chatGui.Print("settings - Toggle Brio Facial settings window");
-        _chatGui.Print("about - Toggle Brio Facial info window");
+        _chatGui.Print("Valid Briosis commands are:");
+        _chatGui.Print("<none> - Toggle main Briosis window");
+        _chatGui.Print("window - Toggle main Briosis window");
+        _chatGui.Print("settings - Toggle Briosis settings window");
+        _chatGui.Print("about - Toggle Briosis info window");
         _chatGui.Print("help - Print this help prompt");
     }
 

@@ -112,7 +112,7 @@ public class MainWindow : Window, IDisposable
         if(_gPoseService.IsGPosing == false)
         {
             using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
-                ImGui.Text("Open GPose to use Brio!");
+                ImGui.Text("Open GPose to use Briosis!");
         }
 
         var rootEntity = _entityManager.RootEntity;

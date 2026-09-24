@@ -3,6 +3,7 @@
 
 using Brio.Core;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Brio.Game.Facial;
 
@@ -31,6 +32,46 @@ public sealed record FacialParameter(
     }
 }
 
+public enum TongueControlBone
+{
+    Root,
+    Body,
+    Tip
+}
+
+public readonly record struct TongueControlDebugSettings(
+    float RootWeight,
+    float BodyWeight,
+    float TipWeight,
+    float VisibleExtension);
+
+public readonly record struct TongueBoneAdjustment(
+    Vector3 PositionDelta,
+    Quaternion RotationDelta);
+
+public sealed record FacialControlHistoryState(
+    IReadOnlyDictionary<string, float> Controls,
+    TongueControlDebugSettings TongueSettings,
+    string? ActiveTongueProfilePath,
+    IReadOnlyDictionary<string, TongueBoneAdjustment> TongueBoneAdjustments);
+
+public readonly record struct TongueControlDebugInfo(
+    bool IsAvailable,
+    string UnavailableReason,
+    float ChainLength,
+    float RestGap,
+    float RestGapRatio,
+    float DesiredVisibleExtension,
+    float TotalDesiredTipTravel,
+    float CurrentTipFromMouthPlane,
+    Vector3 RootLocalDelta,
+    Vector3 BodyLocalDelta,
+    Vector3 TipLocalDelta)
+{
+    public static TongueControlDebugInfo Unavailable(string reason)
+        => new(false, reason, 0f, 0f, 0f, 0f, 0f, 0f, Vector3.Zero, Vector3.Zero, Vector3.Zero);
+}
+
 internal sealed class FacialSchemaFileDto
 {
     public FacialParameterDto[] Data { get; set; } = [];
@@ -51,4 +92,3 @@ internal sealed class FacialTransformDto
     public string Rotation { get; set; } = "0, 0, 0, 1";
     public string Scale { get; set; } = "1, 1, 1";
 }
-

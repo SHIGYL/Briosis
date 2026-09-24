@@ -260,8 +260,8 @@ public class PenumbraService : BrioIPC
 
         return await _framework.RunOnFrameworkThread(() =>
         {
-            var collName = "Brio_" + uid;
-            _penumbraCreateNamedTemporaryCollection.Invoke("Brio", collName, out var collId);
+            var collName = "Briosis_" + uid;
+            _penumbraCreateNamedTemporaryCollection.Invoke("Briosis", collName, out var collId);
             Brio.Log.Debug("Creating Temp Collection {collName}, GUID: {collId}", collName, collId);
             return collId;
 
@@ -278,9 +278,9 @@ public class PenumbraService : BrioIPC
             {
                 Brio.Log.Debug("[{applicationId}] Change: {from} => {to}", applicationId, mod.Key, mod.Value);
             }
-            var retRemove = _penumbraRemoveTemporaryMod.Invoke("BrioChara_Files", collId, 0);
+            var retRemove = _penumbraRemoveTemporaryMod.Invoke("BriosisChara_Files", collId, 0);
             Brio.Log.Debug("[{applicationId}] Removing temp files mod for {collId}, Success: {ret}", applicationId, collId, retRemove);
-            var retAdd = _penumbraAddTemporaryMod.Invoke("BrioChara_Files", collId, modPaths, string.Empty, 0);
+            var retAdd = _penumbraAddTemporaryMod.Invoke("BriosisChara_Files", collId, modPaths, string.Empty, 0);
             Brio.Log.Debug("[{applicationId}] Setting temp files mod for {collId}, Success: {ret}", applicationId, collId, retAdd);
         }).ConfigureAwait(false);
     }
@@ -292,7 +292,7 @@ public class PenumbraService : BrioIPC
         await _framework.RunOnFrameworkThread(() =>
         {
             Brio.Log.Debug("[{applicationId}] Manip: {data}", applicationId, manipulationData);
-            var retAdd = _penumbraAddTemporaryMod.Invoke("BrioChara_Meta", collId, [], manipulationData, 0);
+            var retAdd = _penumbraAddTemporaryMod.Invoke("BriosisChara_Meta", collId, [], manipulationData, 0);
             Brio.Log.Debug("[{applicationId}] Setting temp meta mod for {collId}, Success: {ret}", applicationId, collId, retAdd);
         }).ConfigureAwait(false);
     }

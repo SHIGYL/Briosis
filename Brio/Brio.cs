@@ -50,7 +50,7 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
     public const int MajorAPIVersion = 3;
     public const int MinorAPIVersion = 0;
 
-    public const string Name = "BRIO FACIAL";
+    public const string Name = "Briosis";
 
     private readonly IDalamudPluginInterface _pluginInterface = pluginInterface;
     private static ServiceProvider? _services = null;
@@ -340,7 +340,7 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
     {
         NotificationManager.AddNotification(new Dalamud.Interface.ImGuiNotification.Notification
         {
-            Title = "Brio Info",
+            Title = "Briosis Info",
             Content = message,
             Type = Dalamud.Interface.ImGuiNotification.NotificationType.Info,
             RespectUiHidden = false
@@ -348,7 +348,7 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
         UIManager.Instance.NotifyInfo(message);
     }
 
-    public static void PopToast(string message, string title = "Brio Message", Dalamud.Interface.ImGuiNotification.NotificationType type = Dalamud.Interface.ImGuiNotification.NotificationType.Info)
+    public static void PopToast(string message, string title = "Briosis Message", Dalamud.Interface.ImGuiNotification.NotificationType type = Dalamud.Interface.ImGuiNotification.NotificationType.Info)
     {
         NotificationManager.AddNotification(new Dalamud.Interface.ImGuiNotification.Notification
         {
@@ -377,9 +377,9 @@ public class Brio(IDalamudPluginInterface pluginInterface) : IAsyncDalamudPlugin
 
         StringBuilder sb = new();
 
-        sb.AppendLine("## Brio Support Information");
+        sb.AppendLine("## Briosis Support Information");
         sb.AppendLine();
-        sb.AppendLine($"> **`Brio Version:              `** {ConfigurationService.s_version}");
+        sb.AppendLine($"> **`Briosis Version:           `** {ConfigurationService.s_version}");
         sb.AppendLine($"> **`API Version:               `** {MajorAPIVersion}.{MinorAPIVersion}");
         sb.AppendLine($"> **`Dalamud Version:           `** {plugininterface!.GetDalamudVersion().ToString()}");
         sb.AppendLine($"> **`Game Data:                 `** {(gamedata!.HasModifiedGameDataFiles ? "Modified" : "Unmodified")}");

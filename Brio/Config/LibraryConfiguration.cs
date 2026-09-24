@@ -20,8 +20,8 @@ public class LibraryConfiguration
     {
         if(Files.Count <= 0)
         {
-            Files.Add(new FileSourceConfig() { Name = "Brio Poses", Path = "/Brio/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
-            Files.Add(new FileSourceConfig() { Name = "Brio Characters", Path = "/Brio/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Briosis Poses", Path = "/Briosis/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Briosis Characters", Path = "/Briosis/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
             Files.Add(new FileSourceConfig() { Name = "Anamnesis Poses", Path = "/Anamnesis/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
             Files.Add(new FileSourceConfig() { Name = "Anamnesis Characters", Path = "/Anamnesis/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
         }

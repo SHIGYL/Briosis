@@ -11,7 +11,7 @@ public class HistoryService(ConfigurationService configurationService, Mediator 
     public bool CanUndo(EntityId id) => GetStacks(id).Undo.Count is not 0 and not 1;
     public bool CanRedo(EntityId id) => GetStacks(id).Redo.Count > 0;
 
-    public void Snapshot(EntityId id, IHistoryCompatible owner, object state)
+    public void Snapshot(EntityId id, IHistoryCompatible owner, object state, object? initialState = null)
     {
         var stacks = GetStacks(id);
         var undoStackSize = configurationService.Configuration.Posing.UndoStackSize;
@@ -26,7 +26,7 @@ public class HistoryService(ConfigurationService configurationService, Mediator 
         stacks.Redo.Clear();
 
         if(stacks.Undo.Count == 0)
-            stacks.Undo.Push(new Entry(owner, owner.CaptureInitialState()));
+            stacks.Undo.Push(new Entry(owner, initialState ?? owner.CaptureInitialState()));
 
         stacks.Undo.Push(new Entry(owner, state));
         stacks.Undo = stacks.Undo.Trim(undoStackSize + 1);

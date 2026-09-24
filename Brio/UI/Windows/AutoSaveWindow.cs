@@ -95,7 +95,7 @@ public class AutoSaveWindow : Window, IDisposable
 
         using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoMagenta))
         {
-            ImGui.Text("ATTENTION: Brio will **NOT** make AutoSaves with this window open!");
+            ImGui.Text("ATTENTION: Briosis will **NOT** make AutoSaves with this window open!");
         }
 
         var windowSize = ImGui.GetWindowSize();

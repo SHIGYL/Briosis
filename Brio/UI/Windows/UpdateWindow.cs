@@ -149,23 +149,23 @@ public class UpdateWindow : Window
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 5);
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(0, 224, 148, 200) / 255))
-            if(ImGui.Button("Support on KoFi", buttonSize))
-                Process.Start(new ProcessStartInfo { FileName = "https://ko-fi.com/minmoosexiv", UseShellExecute = true });
+            if(ImGui.Button("Briosis GitHub", buttonSize))
+                Process.Start(new ProcessStartInfo { FileName = "https://github.com/SHIGYL/Briosis", UseShellExecute = true });
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(65, 90, 240, 200) / 255))
-            if(ImGui.Button("Brio Community Discord", buttonSize))
-                Process.Start(new ProcessStartInfo { FileName = "https://discord.gg/GCb4srgEaH ", UseShellExecute = true });
+            if(ImGui.Button("Upstream Brio", buttonSize))
+                Process.Start(new ProcessStartInfo { FileName = "https://github.com/Etheirys/Brio", UseShellExecute = true });
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(96, 108, 246, 200) / 255))
-            if(ImGui.Button("Aetherworks Discord", buttonSize))
-                Process.Start(new ProcessStartInfo { FileName = "https://discord.gg/KvGJCCnG8t", UseShellExecute = true });
+            if(ImGui.Button("Ktisis", buttonSize))
+                Process.Start(new ProcessStartInfo { FileName = "https://github.com/ktisis-tools/Ktisis", UseShellExecute = true });
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(29, 161, 242, 200) / 255))
-            if(ImGui.Button("More Links", buttonSize))
-                Process.Start(new ProcessStartInfo { FileName = "https://etheirystools.carrd.co", UseShellExecute = true });
+            if(ImGui.Button("Credits", buttonSize))
+                Process.Start(new ProcessStartInfo { FileName = "https://github.com/SHIGYL/Briosis/blob/main/Acknowledgements.md", UseShellExecute = true });
 
         ImBrio.VerticalPadding(10);
 
@@ -209,7 +209,7 @@ public class UpdateWindow : Window
         }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - CloseButtonWidth) / 2);
-        if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[HOLD TO CLOSE]\nTo open this window again click the `Information` button on the Brio Scene Manager!"))
+        if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[HOLD TO CLOSE]\nTo open this window again click the `Information` button in Briosis."))
         {
             IsOpen = false;
         }
@@ -280,7 +280,7 @@ public class UpdateWindow : Window
             if(rightGearGroup.Success)
             {
                 ImGui.Text("And another enormous thank you to the following,");
-                ImGui.Text("people for their contributions to Brio!");
+                ImGui.Text("people for their contributions to Briosis and upstream Brio!");
 
                 ImBrio.VerticalPadding(5);
 

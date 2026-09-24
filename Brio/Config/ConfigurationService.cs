@@ -8,9 +8,7 @@ namespace Brio.Config;
 public class ConfigurationService : IDisposable
 {
 
-    public const string WorldOfEtheirysRepo = "https://raw.githubusercontent.com/etheirys/worldofetheirys/main/repo.json";
-    public const string SeaOfStarsRepo = "https://raw.githubusercontent.com/ottermandias/seaofstars/main/repo.json";
-    public const string BrioRepo = "https://raw.githubusercontent.com/etheirys/brio/main/repo.json";
+    public const string BriosisRepo = "https://raw.githubusercontent.com/shigyl/briosis/main/repo.json";
 
     public Configuration Configuration { get; private set; } = null!;
 
@@ -97,9 +95,7 @@ public class ConfigurationService : IDisposable
         pi.SourceRepository?.Trim().ToLowerInvariant() switch
         {
             null => false,
-            WorldOfEtheirysRepo => true,
-            SeaOfStarsRepo => true,
-            BrioRepo => true,
+            BriosisRepo => true,
             _ => false,
         };
 }

@@ -249,7 +249,7 @@ public class SpawnMenu
                 ImGui.Spacing();
                 ImBrio.SeparatorText("Cameras");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Camera, "Brio Camera", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Camera, "Briosis Camera", buttonSize))
                 {
                     _cameraManager.CreateCamera(CameraType.Game);
                     ImGui.CloseCurrentPopup();

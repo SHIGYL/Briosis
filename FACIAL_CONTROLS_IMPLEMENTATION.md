@@ -2,21 +2,17 @@
 
 ## Result
 
-`BrioFacial` is a separate development fork of Brio `v0.8.0.11` with the Ktisis facial action-unit controls integrated into Brio's actor capability and skeleton-update architecture.
+`Briosis` is a separate community fork based on Brio `v0.8.0.11` with the Ktisis facial action-unit controls integrated into Brio's actor capability and skeleton-update architecture.
 
-- Plugin identity: `Brio Facial` / `BrioFacial`.
-- Assembly: `BrioFacial.dll`, version `0.8.0.11`.
-- Main command: `/briofacial`.
+- Plugin identity: `Briosis` / `Briosis`.
+- Assembly: `Briosis.dll`, version `0.1.0.0`.
+- Main command: `/briosis`.
 - Reference behavior and data: Ktisis commit `e44fb51873119a05e4943cf08d6c124c6a9dfd04` (installed version `0.4.1.2`).
 - Upstream Brio source revision: `8d45c2950f2f0c212c821a5194beb8d5a7a4a18c` (tag `v0.8.0.11`).
 
-The original `BrioUpstream` and `KtisisReference` checkouts were not modified. All implementation changes are in the `BrioFacial` fork.
+The original Brio and Ktisis upstream repositories were not modified. All implementation changes are in the Briosis fork.
 
-The clean development-plugin entry point is:
-
-`D:\FXIVCreateMod\Plugins\BrioKtisis\BrioFacialDevPlugin\BrioFacial.dll`
-
-Point Dalamud's development plugin loader at that DLL. The adjacent manifest and dependencies are already staged in the same directory.
+For local testing, point Dalamud's development plugin loader at `Briosis.dll` in the Release build output. The adjacent manifest and dependencies are staged by the build.
 
 ## What was transferred and what was rewritten
 
@@ -67,6 +63,29 @@ The selected actor exposes a `Facial Controls` widget with the same 20 Ktisis ac
 
 `Combine L/R` puts a pair on one row, while `Link L/R` makes either side update both weights. `Unlock` switches from a bounded slider to an unbounded drag control. Each row has a reset action and the header has Reset All. State belongs to the actor, so selection changes show the newly selected actor's values rather than a global value set. The controls are exposed only in `Advanced Posing -> Face -> Expressions`; the duplicate actor-menu widget was removed after in-game validation.
 
+An additional procedural `Tongue Out` control is documented in
+`TONGUE_CONTROL_ANALYSIS.md`. It operates on the native Dawntrail tongue chain
+and was added after the `v0.8.0.11-facial.1` stable checkpoint.
+
+### Persistent facial presets and tongue profiles
+
+The expression pane now extends Brio's existing `PresetSystem` with two new
+preset types:
+
+- `Facial`: versioned JSON containing only non-neutral high-level facial
+  parameter IDs and weights.
+- `Tongue`: versioned JSON containing normalized Root/Body/Tip weights and
+  `VisibleExtensionL`. Version 2 can additionally contain optional Position and
+  quaternion Rotation deltas for `j_f_bero_01/02/03`. The corrections blend in
+  with Tongue Out and are applied after its procedural transform. Chain length
+  and mouth gap are never serialized and are recalculated from the selected
+  actor's `ReferencePose`.
+
+The payloads are stored under the plugin config directory in
+`Data/Presets/Facial` and `Data/Presets/Tongue`. Brio's normal MessagePack
+`brio.data` files remain the index/metadata store. The global default tongue
+profile path is stored in the normal Dalamud plugin configuration.
+
 ## Changed and new files
 
 New implementation files:
@@ -76,9 +95,11 @@ New implementation files:
 - `Brio/Game/Facial/FacialControlService.cs`
 - `Brio/Capabilities/Actor/FacialControlCapability.cs`
 - `Brio/UI/Controls/Editors/FacialControlsEditor.cs` (Advanced Posing expression-control renderer)
+- `Brio/Services/Models/FacialPresetModels.cs` (versioned facial/tongue JSON payloads)
+- `Brio/Config/FacialConfiguration.cs` (global default tongue-profile selection)
 - `Brio/Resources/Embedded/FacialControls/*.json` (18 exact Ktisis data files)
 - `Brio/Resources/Embedded/FacialControls/SOURCE.md` (data provenance and license attribution)
-- `Brio/BrioFacial.json`
+- `Brio/Briosis.json`
 - `FACIAL_CONTROLS_ANALYSIS.md`
 - `FACIAL_CONTROLS_IMPLEMENTATION.md`
 
@@ -88,9 +109,9 @@ Integration and identity changes:
 - `Brio/Game/Posing/SkeletonService.cs`: applies facial weights in the existing safe update interval.
 - `Brio/UI/Windows/Specialized/PosingGraphicalWindow.cs`: adds `Bones` / `Expressions` modes to the Face page's control pane while retaining the graphical face and bone points.
 - `Brio/Brio.cs`: registers the service and changes the displayed fork name.
-- `Brio/Brio.csproj`: distinct assembly/version/manifest identity.
-- `Brio/Game/Chat/CommandHandlerService.cs`: changes the main command to `/briofacial`.
-- `Brio/Brio.json`: replaced by `Brio/BrioFacial.json`.
+- `Brio/Briosis.csproj`: distinct assembly/version/manifest identity.
+- `Brio/Game/Chat/CommandHandlerService.cs`: changes the main command to `/briosis`.
+- `Brio/Brio.json`: replaced by `Brio/Briosis.json`.
 - `repo.json`, `README.md`, `Acknowledgements.md`: fork metadata and Ktisis attribution.
 
 Build-compatibility-only changes required by the current API/toolchain:
@@ -102,27 +123,26 @@ Build-compatibility-only changes required by the current API/toolchain:
 ## Verification completed
 
 - Exact Ktisis reference revision builds: 0 errors (existing warnings only).
-- Final Brio Facial Release build: 0 errors, 8 upstream deprecation warnings.
+- Briosis Release build: 0 errors; inherited deprecation warnings are documented in the release audit.
 - All 18 copied expression files have the same SHA-256 hashes as the reference checkout.
 - Every schema parses as JSON and contains 20 controls.
 - The final assembly contains all 18 expression resources.
-- Final assembly name/version and generated manifest are `BrioFacial` / `0.8.0.11` with `InternalName` `BrioFacial`.
+- Final assembly name/version and generated manifest are `Briosis` / `0.1.0.0` with `InternalName` `Briosis`.
 - No new signature scan, hook, or numeric native-structure offset was added.
 
 ## Known limitations
 
 - An actual FFXIV/GPose runtime was not available to this build process, so native facial movement and redraw/despawn behavior still require in-game validation.
-- Facial slider operations are not integrated with Brio's pose undo/redo history. Reset and direct slider changes work, but they do not create history entries.
 - Like Ktisis, the UI does not reverse-engineer slider weights from an arbitrary current facial pose. It reports weights managed by this controller.
-- Facial weights are in-memory actor state and are cleared when the actor's skeleton, race/sex, or face changes. They are not serialized into Brio pose files.
+- Facial weights remain in-memory actor state and are cleared when the actor's skeleton, race/sex, or face changes. User facial presets persist those high-level weights independently of Brio pose files.
 - The feature assumes the Dawntrail facial partial at index 1 and requires `j_f_face`, matching the reference Ktisis implementation.
 - Brio's existing native hooks and FFXIVClientStructs layouts remain game-version-sensitive. The port adds defensive checks but cannot make an outdated base plugin compatible with a future game patch.
 - Run this fork with the original Brio and Ktisis disabled. The fork has a separate Dalamud identity, but simultaneous posing hooks are not supported or tested.
 
 ## In-game test checklist
 
-1. Disable the original Brio and Ktisis, then load `BrioFacial.dll` as a Dalamud development plugin.
-2. Enter GPose, select a normal playable character, and verify that `Facial Controls` reports the expected race/sex and face IDs.
+1. Disable the original Brio and Ktisis, then load `Briosis.dll` as a Dalamud development plugin.
+2. Enter GPose, select a normal playable character, and verify that the facial controls become available. Race/sex and face IDs are available under `Tongue Tool -> Advanced Debug`.
 3. Move every control independently and confirm that only the intended facial region/side changes.
 4. Test `Combine L/R` both on and off; test `Link L/R` from both the left and right controls.
 5. Confirm bounded mode stops at `0` and `1`; enable `Unlock` and test negative and greater-than-one values cautiously.
@@ -137,4 +157,4 @@ Build-compatibility-only changes required by the current API/toolchain:
 ### Runtime fixes from initial GPose testing
 
 - Facial application is explicitly restricted to `SkeletonPosingCapability.CharacterSkeleton`. Brio also registers weapon, prop, and ornament skeletons against the same actor capability; allowing those auxiliary skeletons through facial binding reset the actor's weights every frame.
-- The Unlock and Reset All controls are placed on a second row so Reset All remains visible in Brio's narrower actor panel.
+- Unlock and Reset All use fixed right-side table columns, while Combine/Link use the responsive remaining width.

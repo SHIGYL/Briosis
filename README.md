@@ -1,101 +1,77 @@
-# Brio Facial - Brio with Ktisis-style facial controls
+# Briosis
 
-This development fork is based on Brio `v0.8.0.11` and adds Ktisis-style facial action-unit sliders. It keeps Brio's namespaces and core architecture while using the distinct Dalamud identity `BrioFacial` and command `/briofacial`. See [FACIAL_CONTROLS_ANALYSIS.md](FACIAL_CONTROLS_ANALYSIS.md) for the source analysis and transfer design.
+![Briosis icon](Resources/Images/BriosisIcon.png)
 
-[![Build status](https://github.com/Etheirys/Brio/actions/workflows/build.yml/badge.svg)](https://github.com/Etheirys/Brio/actions/workflows/build.yml) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Etheirys/Brio/total?style=flat) [![Latest Release](https://img.shields.io/github/v/release/Etheirys/Brio)](https://github.com/Etheirys/Brio/releases/latest) ![GitHub License](https://img.shields.io/github/license/Etheirys/Brio?style=flat) ![Bluesky followers](https://img.shields.io/bluesky/followers/minmoose.bsky.social?style=flat&label=bluesky%20followers) ![Discord](https://img.shields.io/discord/1198316676865867776?label=discord) 
+[![Build](https://github.com/SHIGYL/Briosis/actions/workflows/build.yml/badge.svg)](https://github.com/SHIGYL/Briosis/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/SHIGYL/Briosis)](https://github.com/SHIGYL/Briosis/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-> Brio is currently in BETA, as such, there may be bugs. If you find any, please report them!
+Briosis is a community fork and mash-up built on [Brio](https://github.com/Etheirys/Brio), with expanded facial posing adapted from and inspired by [Ktisis](https://github.com/ktisis-tools/Ktisis). It is not an official Brio or Ktisis release.
 
 ## Features
-* Full Actor Posing
-  * While animating
-  * Adjust actor positions without them resetting
-  * Overlay and graphical posing modes
-  * Inverse Kinematics (IK) posing
-  * Full-pose Mirroring/Fliping
-  * Import and export poses to a `.pose`
-* Actor Management - Creation and Deletion of up to 239 GPose Actors
-  * Add/Remove/Blend any animation on a GPose actor (and adjust their speed!)
-  * Spawn and attach Companions to actors (minions, mounts, and ornaments)
-  * Edit Actor Appearances
-  * Swap gear, weapons, and dyes
-  * Change the Penumbra collection, Glamourer design & C+ Profile, applied to GPose actors
-  * Full character customization (race, tribe, gender, and appearance sliders)
-  * Advanced appearance and model shader/color options
-  * Add/Remove Status Effects on GPose actors
-* Vivacity - Brio's full Keyframe timeline, animate anything! Actors, world objects, cameras, and lights!
-  * Keyframe positions, rotations, bones and even full poses, the camera, lights even the colors of them!
-  * Play XAT's .xcp camera files
-  * Has Bezier interpolation or step interpolation keyframes
-* World Object spawning! From weapons, to furniture, or that rock over there. If you can see it, you can spawn it!
-  * Spawn props, housing furniture, background world objects, and VFX
-  * Browse it all in a searchable, categorized Object Catalog
-* Creation of fully customizable lights!
-* Create virtual cameras and move them freely beyond GPose's normal limits
-  * Includes Free Cameras!
-* Creation & Loading of MCDFs that can be loaded onto GPose actors
-* Save/Load the entire GPose scenes (actors, world objects, lights, cameras, and environment)
-* Browse your character and pose collection with a searchable, tag-based Library!
-* Overlay reference images while posing
-* Control Time/Weather in both the Overworld and GPose
-* Change the active festivals, apply up to 8 at once! (ie, Moonfire Faire for fireworks)
+
+- Brio-based GPose actor, posing, animation, appearance, scene, camera, lighting, and world tools
+- Ktisis-style facial expression controls
+- Facial Presets with persistence and optional manual-bone adjustments
+- Geometry-normalized procedural `Tongue Out` control
+- Reusable Tongue Profiles and a Tongue Tool for root/body/tip tuning
+- Manual tongue-bone shortcuts for fine tuning
+- Undo/Redo integration for facial-expression editing
 
 ## Installation
-### You can install Brio in one of two ways, 
 
-#### 📦 With the [Sea of Stars](https://github.com/Ottermandias/SeaOfStars) **(Recommended)** Custom Dalamud Repository.
-  - Type `/xlsettings` in the chat window, then go to the **Experimental** tab.
-  - Under the **Custom Plugin Repositories** section, add the following Dalamud repo:
-  ```
-  https://raw.githubusercontent.com/Ottermandias/SeaOfStars/main/repo.json
-  ```
-  - Click on the + button & ensure the ***Enabled*** box is checked on the repo.
-  - ***Click on the save button in the bottom right***
-  - Now open the **Dalamud Plugin Installer** by opening FFXIV's System Menu then pressing ***Dalamud Plugins***
-  - In the Search box type `Brio`, find & click on ***Brio*** and then click `Install` after Dalamud has finished installing **Brio**, make sure the *Brio* plugin is Enabled in the Plugin Installer.
-  - You now have **Brio** Installed, ***Brio will now open when you are in G-Pose***, you can also type `/brio` in chat to open the Brio Window.
+1. Open `/xlsettings` in FFXIV.
+2. Select **Experimental**.
+3. Under **Custom Plugin Repositories**, add:
 
-#### 🏗️ With the [World Of Etheirys ](https://github.com/Etheirys/WorldOfEtheirys) Custom Dalamud Repository.
-                      
-  - Type `/xlsettings` in the chat window, then go to the **Experimental** tab.
-  - Under the **Custom Plugin Repositories** section, add the following Dalamud repo:
-  ```
-  https://raw.githubusercontent.com/Etheirys/WorldOfEtheirys/main/repo.json
-  ```
-  - Click on the + button & ensure the ***Enabled*** box is checked on the repo.
-  - ***Click on the save button in the bottom right***
-  - Now open the **Dalamud Plugin Installer** by opening FFXIV's System Menu then pressing ***Dalamud Plugins***
-  - In the Search box type `Brio`, find & click on ***Brio*** and then click `Install` after Dalamud has finished installing **Brio**, make sure the *Brio* plugin is Enabled in the Plugin Installer.
-  - You now have **Brio** Installed, ***Brio will now open when you are in G-Pose***, you can also type `/brio` in chat to open the Brio Window.
+   ```text
+   https://raw.githubusercontent.com/SHIGYL/Briosis/main/repo.json
+   ```
 
-## Support
-Brio is still early in development so issues are to be expected.
+4. Enable the repository and click **Save**.
+5. Open `/xlplugins`.
+6. Search for **Briosis** and select **Install**.
 
-If you encounter an issue, please either, visit us on the BRIO discord [World of Etheirys Discord](https://discord.gg/GCb4srgEaH ), [Aetherworks Discord](https://discord.gg/KvGJCCnG8t) or open an [issue](https://github.com/Etheirys/Brio/issues)!
+Updates are delivered through the same custom repository. Use `/briosis` to open the main window.
 
-## Authors 
-**[Minmoose](https://github.com/Minmoose) - Maintainer & Developer.**
+## Compatibility note
 
-**[Asgard](https://github.com/AsgardXIV) - Original Maintainer & Developer.**
+Briosis and the original Brio use many of the same game hooks and retain compatible internal `Brio.*` namespaces and file formats. Their simultaneous runtime operation is not supported. Disable Brio before enabling Briosis.
 
-**Thank You, to all of our [Contributors](https://github.com/Etheirys/Brio/graphs/contributors)!**
+Briosis has its own Dalamud identity (`Briosis`), assembly (`Briosis.dll`), configuration directory, preset/profile storage, temporary cache, Penumbra temporary collections, command (`/briosis`), and update channel. It does not install or update over Brio.
 
-## Acknowledgements
-Brio wouldn't be possible without the tireless work of many devs across many projects.
+The inherited optional `/xat` and `/mcdf` aliases, Brio IPC contract names, and local web API endpoint are retained for compatibility. They may conflict if Brio is also enabled, which is another reason not to run both plugins at once.
 
-A special thanks goes to:
-* [Anamnesis](https://github.com/imchillin/Anamnesis)
-* [Dynamis](https://github.com/Exter-N/Dynamis)
-* [darkarchon](https://github.com/rootdarkarchon)
-* [Ktisis](https://github.com/ktisis-tools/Ktisis)
-* [Dalamud](https://github.com/goatcorp/Dalamud/)
-* [Penumbra](https://github.com/xivdev/Penumbra)
-* [Glamourer](https://github.com/Ottermandias/Glamourer)
-* [FFXIVClientStructs](https://github.com/aers/FFXIVClientStructs)
-* [VFXEditor](https://github.com/0ceal0t/Dalamud-VFXEditor)
-* [Cammy](https://github.com/UnknownX7/Cammy)
+## Building
 
-Find out more [here](https://github.com/Etheirys/Brio/blob/main/Acknowledgements.md).
+Requirements:
+
+- Windows
+- .NET 10 SDK
+- a current Dalamud development installation compatible with API level 15
+- Git submodules initialized
+
+Build the release package with:
+
+```powershell
+git submodule update --init --recursive
+dotnet restore Briosis.slnx
+dotnet build Briosis.slnx --configuration Release --no-restore
+```
+
+DalamudPackager writes the installable archive as `latest.zip` below `Brio/bin/x64/Release/Briosis/`. Release automation publishes the same archive as `Briosis.zip`.
+
+## Credits
+
+Briosis is maintained by SHIGYL and is derived from GPL-3.0 projects:
+
+- [Brio](https://github.com/Etheirys/Brio) by Etheirys, its maintainers, and contributors
+- [Ktisis](https://github.com/ktisis-tools/Ktisis) by ktisis-tools and contributors
+
+Facial-control schemas and portions of the facial blend/propagation behavior were adapted from Ktisis. Briosis preserves Brio's architecture and namespaces where changing them would create unnecessary risk and make upstream comparison harder.
+
+See [Acknowledgements.md](Acknowledgements.md) for additional upstream projects and notices.
 
 ## License
-Brio is licensed under the [GPL 3.0 license](https://github.com/Etheirys/Brio/blob/main/LICENSE).
+
+Briosis is distributed under the [GNU General Public License v3.0](LICENSE). Upstream copyright and attribution remain with their respective authors.

@@ -9,6 +9,7 @@ using Brio.Game.GPose;
 using Brio.Game.Posing;
 using Brio.Input;
 using Brio.Resources;
+using Brio.Services;
 using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
@@ -41,7 +42,7 @@ public class PosingGraphicalWindow : Window, IDisposable
     private readonly GPoseService _gPoseService;
     private readonly PhysicsService _physicsService;
     private readonly PosingTransformEditor _transformEditor = new();
-    private readonly FacialControlsEditor _facialControlsEditor = new();
+    private readonly FacialControlsEditor _facialControlsEditor;
     private readonly BoneSearchControl _boneSearchControl = new();
     private float _closestHover = float.MaxValue;
 
@@ -51,7 +52,7 @@ public class PosingGraphicalWindow : Window, IDisposable
     int _faceControlPane = 0;
     private bool _hideControlPane = false;
 
-    public PosingGraphicalWindow(EntityManager entityManager, CameraService cameraService, PhysicsService physicsService, ConfigurationService configurationService, PosingService posingService, GPoseService gPoseService) : base($"{Brio.Name} - POSING###brio_posing_graphical_window")
+    public PosingGraphicalWindow(EntityManager entityManager, CameraService cameraService, PhysicsService physicsService, ConfigurationService configurationService, PosingService posingService, GPoseService gPoseService, PresetSystem presetSystem) : base($"{Brio.Name} - POSING###brio_posing_graphical_window")
     {
         Namespace = "brio_posing_graphical_namespace";
 
@@ -61,6 +62,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         _posingService = posingService;
         _gPoseService = gPoseService;
         _physicsService = physicsService;
+        _facialControlsEditor = new FacialControlsEditor(presetSystem);
 
         this.AllowBackgroundBlur = false;
 
@@ -371,13 +373,23 @@ public class PosingGraphicalWindow : Window, IDisposable
                 using(var child = ImRaii.Child("###facial_expression_editor", new Vector2(-1, -1), true, ImGuiWindowFlags.AlwaysVerticalScrollbar))
                 {
                     if(child.Success)
-                        _facialControlsEditor.Draw("graphical_posing", facialControls);
+                        _facialControlsEditor.Draw("graphical_posing", posing, facialControls, selectBone: boneName => SelectTongueBone(posing, boneName));
                 }
                 return;
             }
         }
 
         DrawSelection(posing);
+    }
+
+    private void SelectTongueBone(PosingCapability posing, string boneName)
+    {
+        var bone = posing.SkeletonPosing.GetBone(boneName, PoseInfoSlot.Character);
+        if(bone is null)
+            return;
+
+        posing.SetBoneSelection(new BonePoseInfoId(bone.Name, bone.PartialId, PoseInfoSlot.Character), false);
+        _faceControlPane = 0;
     }
 
     private void DrawTransformHeader(PosingCapability posing)

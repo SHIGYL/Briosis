@@ -747,7 +747,7 @@ public static partial class ImBrio
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool HoldButton(ImU8String id, string label, FontAwesomeIcon icon, float holdDuration = 1.0f, Vector2? btnsize = null, string tooltip = "", bool centerTest = false, bool onlyIcon = false)
+    public static bool HoldButton(ImU8String id, string label, FontAwesomeIcon icon, float holdDuration = 1.0f, Vector2? btnsize = null, string tooltip = "", bool centerTest = false, bool onlyIcon = false, bool enabled = true, bool allowCtrlShortcut = true)
     {
         bool wasTriggered = false;
 
@@ -819,13 +819,13 @@ public static partial class ImBrio
             }
         }
 
-        if(activated && ImGui.GetIO().KeyCtrl)
+        if(enabled && allowCtrlShortcut && activated && ImGui.GetIO().KeyCtrl)
         {
             _holdButtonStates.Remove(uid);
             return true;
         }
 
-        if(isActive)
+        if(enabled && isActive)
         {
             if(activated || state.StartTime == 0)
             {

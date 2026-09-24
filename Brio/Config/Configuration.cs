@@ -4,7 +4,7 @@ namespace Brio.Config;
 
 public class Configuration : IPluginConfiguration
 {
-    public const int CurrentVersion = 5;
+    public const int CurrentVersion = 6;
     public const int CurrentPopupKey = 3002; // why did I set it to this?????? 
 
     public int Version { get; set; } = CurrentVersion;
@@ -17,6 +17,9 @@ public class Configuration : IPluginConfiguration
 
     // Posing
     public PosingConfiguration Posing { get; set; } = new PosingConfiguration();
+
+    // Facial controls
+    public FacialConfiguration Facial { get; set; } = new FacialConfiguration();
 
     // IPC
     public IPCConfiguration IPC { get; set; } = new IPCConfiguration();

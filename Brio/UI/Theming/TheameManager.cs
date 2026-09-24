@@ -18,7 +18,7 @@ public static class ThemeManager
 
     public static Theme BrioDark { get; } = new Theme
     {
-        Name = "Brio Dark",
+        Name = "Briosis Dark",
         Accent = new ThemeAccent
         {
             AccentColor = SetColor(new Vector4(98, 75, 224, 255)),
@@ -120,7 +120,7 @@ public static class ThemeManager
 
     public static Theme BrioLight { get; } = new Theme
     {
-        Name = "Brio Light",
+        Name = "Briosis Light",
         Accent = new ThemeAccent
         {
             AccentColor = SetColor(new Vector4(98, 75, 224, 255)),

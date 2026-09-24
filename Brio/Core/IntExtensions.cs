@@ -52,7 +52,7 @@ public static class IntExtensions
         string result = ToWords(i, " ");
 
         if(!result.Contains(' '))
-            return "Brio " + result;
+            return "Briosis " + result;
 
         return result;
     }

@@ -158,5 +158,4 @@ The Ktisis JSON tables can be transferred directly (with attribution). Ktisis UI
 
 ## Fork identity plan
 
-The fork keeps the `Brio` namespaces to minimize the diff but changes its assembly/plugin identity to `BrioFacial`, uses a distinct manifest name/internal name and command, and emits a separate DLL/config identity. It is intended to replace Brio during testing; simultaneous hook operation is not promised.
-
+The fork keeps the `Brio` namespaces to minimize the diff but changes its assembly/plugin identity to `Briosis`, uses a distinct manifest name/internal name and command, and emits a separate DLL/config identity. It is intended to replace Brio while active; simultaneous hook operation is not supported.

@@ -226,7 +226,7 @@ public class AutoSaveService : MediatorSubscriberBase, IDisposable
         }
         catch(Exception ex)
         {
-            Brio.NotifyError("Brio AutoSave was corrupted!");
+            Brio.NotifyError("Briosis AutoSave was corrupted!");
             Brio.Log.Error(ex, "Exception while loading an AutoSave!");
         }
     }

@@ -105,7 +105,7 @@ public class CameraWindow : Window, IDisposable
                 break;
             case CameraType.Game:
             case CameraType.Default:
-                WindowName = $"{Brio.Name} - CAMERA (BRIO CAM)###brio_camera_window";
+                WindowName = $"{Brio.Name} - CAMERA (BRIOSIS CAM)###brio_camera_window";
                 CameraEditor.DrawBrioCam("camera_widget_editor", camBrioCap);
                 break;
         }

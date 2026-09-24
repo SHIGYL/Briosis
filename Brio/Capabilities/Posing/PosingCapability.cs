@@ -4,6 +4,7 @@ using Brio.Core;
 using Brio.Entities;
 using Brio.Entities.Actor;
 using Brio.Files;
+using Brio.Game.Facial;
 using Brio.Game.Input;
 using Brio.Game.Posing;
 using Brio.Game.Posing.Skeletons;
@@ -284,13 +285,16 @@ public class PosingCapability : ActorCharacterCapability, IHistoryCompatible
         ResourceProvider.Instance.SaveFileDocument(path, poseFile);
     }
 
-    public object CaptureInitialState() => new PoseStack(new PoseInfo(), ModelPosing.OriginalTransform);
+    public object CaptureInitialState() => new PoseStack(new PoseInfo(), ModelPosing.OriginalTransform, CaptureFacialState());
 
     public void ApplyState(object state)
     {
         var poseStack = (PoseStack)state;
         SkeletonPosing.PoseInfo = poseStack.Info.Clone();
         ModelPosing.Transform = poseStack.ModelTransform;
+
+        if(poseStack.FacialState is not null && Entity.TryGetCapability<FacialControlCapability>(out var facialControls))
+            facialControls.ApplyHistoryState(poseStack.FacialState);
     }
 
     void IHistoryCompatible.Snapshot() => Snapshot();
@@ -299,7 +303,7 @@ public class PosingCapability : ActorCharacterCapability, IHistoryCompatible
     {
         if(_configurationService.Configuration.Posing.UndoStackSize <= 0)
         {
-            _historyService.Snapshot(Entity.Id, this, new PoseStack(SkeletonPosing.PoseInfo.Clone(), ModelPosing.Transform));
+            _historyService.Snapshot(Entity.Id, this, CaptureHistoryState());
             return;
         }
 
@@ -311,7 +315,7 @@ public class PosingCapability : ActorCharacterCapability, IHistoryCompatible
             return;
         }
 
-        _historyService.Snapshot(Entity.Id, this, new PoseStack(SkeletonPosing.PoseInfo.Clone(), ModelPosing.Transform));
+        _historyService.Snapshot(Entity.Id, this, CaptureHistoryState());
 
         if(SkeletonPosing.PoseInfo.HasIKStacks is false)
             ReconcileHead();
@@ -354,6 +358,17 @@ public class PosingCapability : ActorCharacterCapability, IHistoryCompatible
     public void Redo() => _entityManager.RedoSelected();
 
     public void Undo() => _entityManager.UndoSelected();
+
+    public PoseStack CaptureHistoryState()
+        => new(SkeletonPosing.PoseInfo.Clone(), ModelPosing.Transform, CaptureFacialState());
+
+    public void CommitHistoryState(PoseStack initialState)
+        => _historyService.Snapshot(Entity.Id, this, CaptureHistoryState(), initialState);
+
+    private FacialControlHistoryState? CaptureFacialState()
+        => Entity.TryGetCapability<FacialControlCapability>(out var facialControls)
+            ? facialControls.CaptureHistoryState()
+            : null;
 
     public void Reset(bool generateSnapshot = true, bool reset = true, bool clearHistStack = true)
     {
@@ -717,7 +732,7 @@ public class PosingCapability : ActorCharacterCapability, IHistoryCompatible
         return SelectedBones.Any(b => b.Equals(boneId));
     }
 
-    public record struct PoseStack(PoseInfo Info, Transform ModelTransform);
+    public record struct PoseStack(PoseInfo Info, Transform ModelTransform, FacialControlHistoryState? FacialState);
 }
 
 public enum ExpressionPhase

@@ -11,7 +11,7 @@ public class AppearanceConfiguration
     public bool EnableBrioColor { get; set; } = true;
     public bool EnableBrioScale { get; set; } = false;
 
-    public string Theme { get; set; } = "Brio Dark";
+    public string Theme { get; set; } = "Briosis Dark";
     public float WindowOpacity { get; set; } = 0.82f;
     public bool EnableBlur { get; set; } = true;
 }

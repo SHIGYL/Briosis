@@ -1,0 +1,25 @@
+﻿{
+  "Author": "SHIGYL",
+  "Name": "Briosis",
+  "InternalName": "Briosis",
+  "AssemblyVersion": "0.1.0.0",
+  "Description": "A community GPose posing toolkit based on Brio, with expanded facial-expression controls, facial presets, and advanced tongue posing tools adapted from and inspired by Ktisis.",
+  "ApplicableVersion": "any",
+  "RepoUrl": "https://github.com/SHIGYL/Briosis",
+  "Tags": [
+    "gpose",
+    "brio",
+    "posing",
+    "animation"
+  ],
+  "DownloadCount": 0,
+  "DalamudApiLevel": 15,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": false,
+  "LoadPriority": 0,
+  "IconUrl": "https://raw.githubusercontent.com/SHIGYL/Briosis/main/Resources/Images/BriosisIcon.png",
+  "Punchline": "Brio-based GPose tools with advanced facial and tongue posing.",
+  "Changelog": "Initial public Briosis release.",
+  "AcceptsFeedback": true
+}

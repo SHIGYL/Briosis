@@ -1,33 +1,25 @@
 [
   {
-    "Author": "Minmoose, Asgard and Contributors; facial controls adapted from Ktisis",
-    "Name": "Brio Facial",
-    "Punchline": "Brio with Ktisis-style facial controls.",
-    "Description": "A development fork of Brio v0.8.0.11 with Ktisis-style facial action-unit sliders.",
-    "InternalName": "BrioFacial",
-    "AssemblyVersion": "0.8.0.11",
-    "TestingAssemblyVersion": "0.8.0.11",
-    "RepoUrl": "https://github.com/Etheirys/Brio",
+    "Author": "SHIGYL",
+    "Name": "Briosis",
+    "InternalName": "Briosis",
+    "AssemblyVersion": "0.1.0.0",
+    "RepoUrl": "https://github.com/SHIGYL/Briosis",
     "ApplicableVersion": "any",
-    "DownloadCount": 0,
     "DalamudApiLevel": 15,
-    "TestingDalamudApiLevel": 15,
-    "IconUrl": "https://raw.githubusercontent.com/Etheirys/Brio/main/Resources/Images/BrioIcon.png",
+    "Punchline": "Brio-based GPose tools with advanced facial and tongue posing.",
+    "Description": "A community GPose posing toolkit based on Brio, with expanded facial-expression controls, facial presets, and advanced tongue posing tools adapted from and inspired by Ktisis.",
+    "IsHide": false,
+    "IsTestingExclusive": false,
+    "DownloadLinkInstall": "https://github.com/SHIGYL/Briosis/releases/download/v0.1.0.0/Briosis.zip",
+    "DownloadLinkUpdate": "https://github.com/SHIGYL/Briosis/releases/download/v0.1.0.0/Briosis.zip",
+    "IconUrl": "https://raw.githubusercontent.com/SHIGYL/Briosis/main/Resources/Images/BriosisIcon.png",
     "Tags": [
       "gpose",
-      "brio",
       "posing",
-      "pose",
-      "animation",
-      "xat",
-      "camera",
-      "time",
-      "weather",
-      "festival",
-      "lights",
-      "cutscene",
-      "utility",
-      "tools"
+      "facial expressions",
+      "presets",
+      "animation"
     ]
   }
 ]

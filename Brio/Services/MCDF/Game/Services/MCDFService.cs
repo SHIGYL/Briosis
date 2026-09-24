@@ -302,7 +302,7 @@ public class MCDFService : IDisposable
             var idx = await _framework.RunOnFrameworkThread(() => tempHandler.GameObject?.ObjectIndex).ConfigureAwait(false) ?? 0;
             logger.Debug("{Progress} idx:{Idx}", DataApplicationProgress, idx);
 
-            penumbraCollection = await _penumbraService.CreateTemporaryCollectionAsync($"Brio_{idx}").ConfigureAwait(false);
+            penumbraCollection = await _penumbraService.CreateTemporaryCollectionAsync($"Briosis_{idx}").ConfigureAwait(false);
 
             await _penumbraService.AssignTemporaryCollectionAsync(penumbraCollection, idx).ConfigureAwait(false);
             await _penumbraService.SetTemporaryModsAsync(applicationId, penumbraCollection, modPaths).ConfigureAwait(false);

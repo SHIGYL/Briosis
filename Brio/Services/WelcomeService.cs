@@ -60,6 +60,12 @@ public class WelcomeService : IDisposable
             configService.Configuration.Version = Configuration.CurrentVersion;
         }
 
+        if(configService.Configuration.Version <= 5)
+        {
+            configService.Configuration.Facial ??= new FacialConfiguration();
+            configService.Configuration.Version = Configuration.CurrentVersion;
+        }
+
         configService.ApplyChange();
 
         #endregion

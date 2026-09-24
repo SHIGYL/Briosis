@@ -1,11 +1,17 @@
-# Preamble
+# Acknowledgements and Credits
 
-Brio wouldn't be possible without the tireless work of many devs across many projects.
+Briosis is a community derivative of Brio and includes facial-control work adapted from and inspired by Ktisis. It is not an official release of either upstream project. Copyright in upstream work remains with its respective authors and contributors.
+
+Primary upstream projects:
+
+* [Brio](https://github.com/Etheirys/Brio) by Etheirys, its maintainers, and contributors
+* [Ktisis](https://github.com/ktisis-tools/Ktisis) by ktisis-tools and contributors
+  * Briosis's facial action-unit schemas, slider behavior, and portions of the Havok blend/propagation algorithm are adapted from Ktisis commit `e44fb51873119a05e4943cf08d6c124c6a9dfd04` under GPL-3.0. Integration and lifecycle handling were rewritten for Brio's architecture.
+
+Brio and Briosis also depend on or draw from the work of many projects and developers:
 
 A special thanks goes to:
 * [Anamnesis](https://github.com/imchillin/Anamnesis)
-* [Ktisis](https://github.com/ktisis-tools/Ktisis)
-  * Brio Facial's facial action-unit schemas, slider behavior, and Havok blend/propagation algorithm are adapted from Ktisis commit `e44fb51873119a05e4943cf08d6c124c6a9dfd04` under GPL-3.0. The Brio integration and lifecycle handling were rewritten for Brio's architecture.
 * [Dalamud](https://github.com/goatcorp/Dalamud/)
 * [Penumbra](https://github.com/xivdev/Penumbra)
 * [Glamourer](https://github.com/Ottermandias/Glamourer)

@@ -1,68 +1,65 @@
-name: Release Brio
+name: Release Briosis
 
 permissions:
   contents: write
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Version to create
-        required: true
-      testing:
-        description: Publish as a testing release
-        type: boolean
-        required: false
-        default: false
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  build:
+  release:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-        submodules: true
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Install .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: 10.0.x
+      - name: Install .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
 
-    - name: Download Dalamud
-      run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
-        Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
+      - name: Validate release metadata and tag
+        shell: pwsh
+        run: ./scripts/Validate-ReleaseMetadata.ps1 -Tag "${{ github.ref_name }}"
 
-    - name: Restore Dependencies
-      run: dotnet restore Brio.slnx
+      - name: Download Dalamud development files
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile dalamud-latest.zip
+          Expand-Archive -Force dalamud-latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
-    - name: Build Brio
-      run: dotnet build Brio.slnx --no-restore /p:Configuration=Release /p:Version=${{ github.event.inputs.version }}
+      - name: Restore
+        run: dotnet restore Briosis.slnx
 
-    - name: Zip Release
-      uses: TheDoctor0/zip-release@0.6.0
-      with:
-        filename: '../../../../Brio.zip'
-        directory: './Brio/bin/x64/Release/'
-        exclusions: 'Brio Brio/*'
+      - name: Build and package
+        run: dotnet build Briosis.slnx --configuration Release --no-restore
 
-    - name: Upload Release
-      uses: ncipollo/release-action@v1
-      with:
-        allowUpdates: true
-        artifacts: "./Brio.zip"
-        name: Brio v${{ github.event.inputs.version }}
-        tag: v${{ github.event.inputs.version }}
-        draft: false
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit: ${{ vars.GITHUB_SHA }}
+      - name: Verify and stage installable archive
+        shell: pwsh
+        run: |
+          $packages = @(Get-ChildItem -LiteralPath Brio/bin/x64/Release -Recurse -Filter latest.zip)
+          if ($packages.Count -ne 1) { throw "Expected exactly one Dalamud package, found $($packages.Count)." }
+          Copy-Item -LiteralPath $packages[0].FullName -Destination Briosis.zip
 
-    - name: Update repo.json
-      uses: ./.github/actions/update-repo
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        version: ${{ github.event.inputs.version }}
-        testing: ${{ github.event.inputs.testing }}
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path Briosis.zip))
+          try {
+            $names = @($archive.Entries | ForEach-Object FullName)
+            if ($names -notcontains 'Briosis.dll') { throw 'Briosis.dll is missing from Briosis.zip.' }
+            if ($names -notcontains 'Briosis.json') { throw 'Briosis.json is missing from Briosis.zip.' }
+          }
+          finally {
+            $archive.Dispose()
+          }
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" Briosis.zip --title "Briosis ${{ github.ref_name }}" --notes-file RELEASE_NOTES.md --verify-tag

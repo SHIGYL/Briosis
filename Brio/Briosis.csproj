@@ -9,8 +9,8 @@
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<AssemblyName>BrioFacial</AssemblyName>
-		<Version>0.8.0.11</Version>
+		<AssemblyName>Briosis</AssemblyName>
+		<Version>0.1.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -41,7 +41,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="BrioFacial.json">
+		<None Update="Briosis.json">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

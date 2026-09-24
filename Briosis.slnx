@@ -2,7 +2,7 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="Brio/Brio.csproj">
+  <Project Path="Brio/Briosis.csproj">
     <Platform Project="x64" />
   </Project>
   <Project Path="Libs/Brio API/Brio.API/Brio.API.csproj">

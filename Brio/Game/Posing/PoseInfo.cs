@@ -154,6 +154,21 @@ public class BonePoseInfo(BonePoseInfoId id, PoseInfo parent)
         _stacks.Clear();
     }
 
+    public void ClearComponents(TransformComponents components)
+    {
+        var keep = TransformComponents.All & ~components;
+        for(var index = _stacks.Count - 1; index >= 0; index--)
+        {
+            var stack = _stacks[index];
+            var transform = stack.Transform;
+            transform.Filter(keep);
+            if(transform.IsApproximatelySame(Transform.Identity))
+                _stacks.RemoveAt(index);
+            else
+                _stacks[index] = stack with { Transform = transform };
+        }
+    }
+
     public BonePoseInfo Clone(PoseInfo parent)
     {
         var clone = new BonePoseInfo(Id, parent)
