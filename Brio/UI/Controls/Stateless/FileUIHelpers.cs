@@ -98,7 +98,6 @@ public class FileUIHelpers
                 if(ImBrio.IconButtonWithText(FontAwesomeIcon.Save, "Save Scene", buttonSize))
                 {
                     projectSystem.SaveProject(projectSystem.CurrentProject!);
-                    Brio.NotifyInfo("Scene saved.");
                     ImGui.CloseCurrentPopup();
                 }
             if(projectSystem.CurrentProject is null)
@@ -119,17 +118,17 @@ public class FileUIHelpers
                 projectWindow.IsOpen = true;
             }
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Load on to this Scene");
+                ImGui.SetTooltip("Load a saved project into this scene");
 
             ImGui.Spacing();
             ImGui.Separator();
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Clock, "Load Auto-Saves", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Clock, "Load Auto-Save", buttonSize))
             {
                 UIManager.Instance.ToggleAutoSaveWindow();
             }
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Load an Auto-Saves on this scene");
+                ImGui.SetTooltip("Load an auto-save into this scene");
 
             ImBrio.SeparatorText("Export");
 
@@ -164,6 +163,7 @@ public class FileUIHelpers
         public readonly Dictionary<EntityId, bool> Selection = [];
         public Preset? Selected = null;
         public bool GroupInFolder = true;
+        public bool LoadRelativePositions = true;
         public int Mode = 0;
     }
 
@@ -254,6 +254,13 @@ public class FileUIHelpers
             if(state.Selected is not null && state.Selected.EntryCount > 1)
                 ImGui.Checkbox($"Group into a new folder", ref state.GroupInFolder);
 
+            bool isLegacyPreset = state.Selected is not null && !state.Selected.SupportsRelativePositions;
+            using(ImRaii.Disabled(isLegacyPreset))
+                ImGui.Checkbox("Load relative positions", ref state.LoadRelativePositions);
+
+            if(isLegacyPreset)
+                ImBrio.AttachToolTip("This preset does not contain relative position data and will load at its saved world position.");
+
             var size = new Vector2(buttonSize.X / 2, 0);
             using(ImRaii.Disabled(state.Selected is null))
             {
@@ -261,7 +268,7 @@ public class FileUIHelpers
                 {
                     if(kind == PresetType.Light)
                     {
-                        var dtos = presetSystem.LoadLightPreset(state.Selected!);
+                        var dtos = presetSystem.LoadLightPreset(state.Selected!, state.LoadRelativePositions);
                         var folder = (dtos.Count > 1 && state.GroupInFolder)
                             ? entityManager.CreateEntityOnEntityContainer<FolderEntity>(state.Selected!.Name) : null;
 
@@ -285,7 +292,7 @@ public class FileUIHelpers
                     }
                     else if(kind == PresetType.Camera)
                     {
-                        var dtos = presetSystem.LoadCameraPreset(state.Selected!);
+                        var dtos = presetSystem.LoadCameraPreset(state.Selected!, state.LoadRelativePositions);
                         var folder = (dtos.Count > 1 && state.GroupInFolder)
                             ? entityManager.CreateEntityOnEntityContainer<FolderEntity>(state.Selected!.Name) : null;
 

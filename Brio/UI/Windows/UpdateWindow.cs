@@ -144,7 +144,7 @@ public class UpdateWindow : Window
             }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - CloseButtonWidth) / 2);
-        if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[HOLD TO CLOSE]\nTo open this window again click the `Information` button in Briosis."))
+        if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.0f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "To open this window again click the `Information` button in Briosis."))
         {
             IsOpen = false;
         }
@@ -158,7 +158,7 @@ public class UpdateWindow : Window
         // Dev Message
         if(entry.Message.IsNullOrEmpty() is false)
         {
-            if(CollapsingHeader($" {entry.Name} — {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
+            if(CollapsingHeader($"{entry.Name} — {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
             {
                 ImBrio.VerticalPadding(10);
 
@@ -169,7 +169,7 @@ public class UpdateWindow : Window
             return;
         }
 
-        if(CollapsingHeader($" {entry.Name} — {entry.Date} ", $"  —  {entry.Tagline} ", currentColor, isCurrent))
+        if(CollapsingHeader($"{entry.Name} — {entry.Date}", $"  —  {entry.Tagline} ", currentColor, isCurrent))
         {
             ImBrio.VerticalPadding(10);
 

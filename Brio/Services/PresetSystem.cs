@@ -5,6 +5,7 @@ using Brio.Game.Facial;
 using Brio.Game.World;
 using Brio.Services.Models;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using MessagePack;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,8 @@ public record class Preset
     [Key(5)] public int EntryCount { get; set; }
 
     [Key(6)] public DateTime? Created { get; set; }
+
+    [Key(7)] public bool SupportsRelativePositions { get; set; }
 }
 
 public class PresetSystem
@@ -52,14 +55,16 @@ public class PresetSystem
     private readonly IDalamudPluginInterface _pluginInterface;
     private readonly LightingService _lightingService;
     private readonly ConfigurationService _configurationService;
+    private readonly IObjectTable _objectTable;
 
     private readonly Dictionary<PresetType, BrioPresets> _presets = [];
 
-    public PresetSystem(IDalamudPluginInterface pluginInterface, LightingService lightingService, ConfigurationService configurationService)
+    public PresetSystem(IDalamudPluginInterface pluginInterface, LightingService lightingService, ConfigurationService configurationService, IObjectTable objectTable)
     {
         _pluginInterface = pluginInterface;
         _lightingService = lightingService;
         _configurationService = configurationService;
+        _objectTable = objectTable;
 
         foreach(PresetType type in Enum.GetValues<PresetType>())
         {
@@ -90,27 +95,77 @@ public class PresetSystem
 
     public void SaveLightPreset(string name, string? description, IReadOnlyList<LightEntity> entities)
     {
+        var anchor = _objectTable.LocalPlayer?.Position;
         var dtos = entities
-            .Select(entity => LightDTO.ToDTO(entity, _lightingService, Vector3.Zero))
+            .Select(entity => LightDTO.ToDTO(entity, _lightingService, anchor ?? Vector3.Zero))
             .Where(dto => dto is not null)
             .Cast<LightDTO>()
             .ToList();
 
-        SavePreset(PresetType.Light, name, description, dtos);
+        SavePreset(PresetType.Light, name, description, dtos, anchor.HasValue);
     }
     public void SaveCameraPreset(string name, string? description, IReadOnlyList<CameraEntity> entities)
     {
+        var anchor = _objectTable.LocalPlayer?.Position;
         var dtos = entities
-            .Select(entity => new CameraDTO { CameraType = entity.CameraType, Camera = entity.VirtualCamera })
+            .Select(entity => new CameraDTO
+            {
+                CameraType = entity.CameraType,
+                Camera = entity.VirtualCamera,
+                RelativePosition = entity.VirtualCamera.Position - (anchor ?? Vector3.Zero)
+            })
             .ToList();
 
-        SavePreset(PresetType.Camera, name, description, dtos);
+        SavePreset(PresetType.Camera, name, description, dtos, anchor.HasValue);
     }
 
-    public List<LightDTO> LoadLightPreset(Preset preset)
-        => LoadPreset<LightDTO>(preset);
-    public List<CameraDTO> LoadCameraPreset(Preset preset)
-        => LoadPreset<CameraDTO>(preset);
+    public List<LightDTO> LoadLightPreset(Preset preset, bool useRelativePositions = true)
+    {
+        var dtos = LoadPreset<LightDTO>(preset);
+        var anchor = GetRelatievPosition(preset, useRelativePositions);
+
+        if(anchor.HasValue)
+        {
+            foreach(var dto in dtos)
+            {
+                var transform = dto.Transform;
+                transform.Position = anchor.Value + dto.RelativePosition;
+                dto.Transform = transform;
+            }
+        }
+
+        return dtos;
+    }
+    public List<CameraDTO> LoadCameraPreset(Preset preset, bool useRelativePositions = true)
+    {
+        var dtos = LoadPreset<CameraDTO>(preset);
+        var anchor = GetRelatievPosition(preset, useRelativePositions);
+
+        if(anchor.HasValue)
+        {
+            foreach(var dto in dtos)
+            {
+                if(dto.Camera is null)
+                    continue;
+
+                var translatedPosition = anchor.Value + dto.RelativePosition;
+                var translation = translatedPosition - dto.Camera.Position;
+
+                dto.Camera.Position = translatedPosition;
+                dto.Camera.SpawnPosition += translation;
+            }
+        }
+
+        return dtos;
+    }
+
+    Vector3? GetRelatievPosition(Preset preset, bool useRelativePositions)
+    {
+        if(!useRelativePositions || !preset.SupportsRelativePositions)
+            return null;
+
+        return _objectTable.LocalPlayer?.Position;
+    }
 
     public Preset? SaveFacialPreset(string name, IReadOnlyDictionary<string, float> controls)
     {
@@ -235,7 +290,7 @@ public class PresetSystem
 
     //
 
-    private void SavePreset<T>(PresetType type, string name, string? description, List<T> dtos)
+    private void SavePreset<T>(PresetType type, string name, string? description, List<T> dtos, bool supportsRelativePositions)
     {
         var path = Path.Combine(PresetSaveFolder(type), $"{name}-{DateTime.Now:yyyy-MM-dd-hh-mm-ss}.brioprst");
 
@@ -248,12 +303,14 @@ public class PresetSystem
 
             _presets[type].Presets.Add(new Preset
             {
+                Version = FormatVersion,
                 Name = name,
                 Path = path,
                 Description = description,
                 Type = type,
                 EntryCount = dtos.Count,
-                Created = DateTime.UtcNow
+                Created = DateTime.UtcNow,
+                SupportsRelativePositions = supportsRelativePositions
             });
 
             SavePresetData(type);
@@ -265,6 +322,7 @@ public class PresetSystem
     }
     private List<T> LoadPreset<T>(Preset preset)
         => Deserialize<T>(File.ReadAllBytes(preset.Path));
+
     public bool DeletePreset(Preset preset)
     {
         try

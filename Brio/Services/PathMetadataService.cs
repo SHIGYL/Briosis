@@ -1,10 +1,8 @@
 using Brio.Resources;
 using Brio.Resources.Extra;
 using Dalamud.Plugin;
-using Swan;
 using System;
 using System.IO;
-using System.IO.Compression;
 
 namespace Brio.Services;
 
@@ -57,7 +55,6 @@ public class PathMetadataService
         // valid on first launch; only deserialize when a file actually supplied data.
         if(userBytes.Length > 0)
             Load(PathTarget.User, ref userBytes);
-
         Load(PathTarget.Plugin, ref pluginBytes);
     }
 

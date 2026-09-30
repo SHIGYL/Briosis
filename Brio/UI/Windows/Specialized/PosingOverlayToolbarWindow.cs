@@ -45,7 +45,7 @@ public class PosingOverlayToolbarWindow : Window
 
     private bool _pushedStyle = false;
     public PosingOverlayToolbarWindow(PosingOverlayWindow overlayWindow, IFramework framework, GPoseService gPoseService, LightWindow lightWindow, GameInputService gameInputService, EntityManager entityManager, PosingTransformWindow overlayTransformWindow, PosingService posingService, ConfigurationService configurationService) : base($"{Brio.Name} OVERLAY###brio_PosingOverlayToolbar", 
-        ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoSavedSettings)
+        ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse)
     {
         Namespace = "brio_posing_overlay_toolbar_namespace";
 
@@ -180,7 +180,7 @@ public class PosingOverlayToolbarWindow : Window
                 posing?.Actor.IsOverlayVisible = !posing.Actor.IsOverlayVisible;
             }
         }
-        ImBrio.AttachToolTip(posing is null ? "(This Entity has no Bones)" : posing?.Actor.IsOverlayVisible ?? false ? "Hide Actor's bones in overlay when not selected" : "Always show Actor's bones when not selected");
+        ImBrio.AttachToolTip(posing is null ? "(This Entity has no Bones)" : posing?.Actor.IsOverlayVisible ?? false ? "Hide this actor's bones when not selected" : "Always show this actor's bones when not selected");
 
         ImGui.SameLine();
 

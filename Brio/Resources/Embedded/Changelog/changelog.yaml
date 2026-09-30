@@ -1,10 +1,25 @@
 tagline: "Briosis"
 subline: "Community GPose posing toolkit"
 changelog:
+  - name: "v0.1.0.4"
+    tagline: "Brio 0.8.0.12 stable sync"
+    date: "September 30th 2026"
+    isCurrent: true
+    versions:
+      - number: "0.1.0.4"
+        icon: ""
+        items:
+          - "Updated the Briosis base to Brio 0.8.0.12 stable."
+          - "Integrated upstream fixes for input, actors, VFX, cameras, overlays, and related GPose systems."
+          - "Added relative-position support for Camera and Light presets while preserving existing presets."
+          - "Integrated MCDF/STG loading and temporary-file handling fixes."
+          - "Fixed misleading error-level log spam during successful MCDF cache generation."
+          - "Preserved Briosis facial and tongue tools, Undo/Redo, IPC/Web separation, and GPose conflict protection."
+
   - name: "v0.1.0.3"
     tagline: "Brio coexistence update"
     date: "September 24th 2026"
-    isCurrent: true
+    isCurrent: false
     versions:
       - number: "0.1.0.3"
         icon: ""
