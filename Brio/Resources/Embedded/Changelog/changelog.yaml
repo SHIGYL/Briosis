@@ -1,10 +1,21 @@
 tagline: "Briosis"
 subline: "Community GPose posing toolkit"
 changelog:
+  - name: "v0.1.0.5"
+    tagline: "Facial composition fix"
+    date: "October 2nd 2026"
+    isCurrent: true
+    versions:
+      - number: "0.1.0.5"
+        icon: ""
+        items:
+          - "Fixed facial expressions becoming distorted or accumulating when editing unrelated pose bones."
+          - "Kept Facial Controls separate from Brio's raw/manual pose cache so expression transforms are not captured back into the pose during bone editing."
+
   - name: "v0.1.0.4"
     tagline: "Brio 0.8.0.12 stable sync"
     date: "September 30th 2026"
-    isCurrent: true
+    isCurrent: false
     versions:
       - number: "0.1.0.4"
         icon: ""

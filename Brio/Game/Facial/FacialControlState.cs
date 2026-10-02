@@ -22,6 +22,8 @@ public sealed class FacialControlState
     private bool _tongueProfileInitialized;
     private readonly Dictionary<string, TongueBoneAdjustment> _tongueBoneAdjustments = new(StringComparer.Ordinal);
 
+    internal FacialPoseCompositionState Composition { get; } = new();
+
     public ushort RaceSexId { get; private set; }
     public byte FaceId { get; private set; }
     public bool IsAvailable { get; private set; }
@@ -41,6 +43,7 @@ public sealed class FacialControlState
             _weights.Clear();
             foreach(var parameter in parameters)
                 _weights[parameter.Id] = 0f;
+            Composition.Reset();
 
             IsAvailable = parameters.Count > 0;
             UnavailableReason = IsAvailable ? string.Empty : $"No expression table exists for race/sex ID {raceSexId}.";
@@ -55,6 +58,7 @@ public sealed class FacialControlState
             {
                 _weights.Clear();
                 _parameters = [];
+                Composition.Reset();
             }
 
             _skeleton = skeleton;

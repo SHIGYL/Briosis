@@ -239,18 +239,31 @@ public unsafe class SkeletonService : IDisposable
         foreach(var skeleton in _skeletonsToUpdate)
         {
             var posingCapability = _skeletonToPosingCapability[skeleton];
+            FacialControlCapability? facialCapability = null;
+
+            // The facial layer must inspect/restore the pose before ordinary Brio
+            // PoseInfo stacks are applied, then compose the expression afterwards.
+            if(ReferenceEquals(posingCapability.CharacterSkeleton, skeleton)
+                && posingCapability.Entity.TryGetCapability<FacialControlCapability>(out facialCapability))
+                facialCapability.PrepareForPoseUpdate(skeleton);
+
             ApplyBrioTransforms(skeleton, posingCapability);
+
+            // Finalize the engine/base pose and genuine PoseInfo layer first. The raw
+            // cache is used by ReconcileHead/ReconcileChildren and must never contain
+            // Briosis' facial overlay.
+            ReparentPartials(skeleton);
+            skeleton.UpdateCachedTransforms(CacheTypes.All);
 
             // A posing capability also registers weapon, prop, and ornament skeletons.
             // Facial state belongs only to the actor's character skeleton; binding it
             // to the auxiliary skeletons would invalidate and reset the weights every frame.
-            if(ReferenceEquals(posingCapability.CharacterSkeleton, skeleton)
-                && posingCapability.Entity.TryGetCapability<FacialControlCapability>(out var facialCapability))
+            if(facialCapability is not null)
                 facialCapability.UpdateAndApply(skeleton);
 
-            skeleton.UpdateCachedTransforms();
-            ReparentPartials(skeleton);
-            skeleton.UpdateCachedTransforms();
+            // The facial layer is visual-only. Keep LastRawTransform at the clean
+            // base/manual pose while exposing the composed result through LastTransform.
+            skeleton.UpdateCachedTransforms(CacheTypes.LastTransform);
         }
 
         foreach(var skeleton in _skeletonsToUpdate)
@@ -270,6 +283,11 @@ public unsafe class SkeletonService : IDisposable
             // Notably, the tail size and breast size are updated during the render rather than the physics update (or before).
             // It's too late to manipulate what ends up in the game scene at this point.
             skeleton.UpdateCachedTransforms(CacheTypes.LastTransform);
+
+            if(_skeletonToPosingCapability.TryGetValue(skeleton, out var posingCapability)
+                && ReferenceEquals(posingCapability.CharacterSkeleton, skeleton)
+                && posingCapability.Entity.TryGetCapability<FacialControlCapability>(out var facialCapability))
+                facialCapability.FinalizePoseUpdate(skeleton);
         }
 
         EndPosingInverval();

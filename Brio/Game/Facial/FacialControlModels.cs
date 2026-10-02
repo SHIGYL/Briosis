@@ -72,6 +72,24 @@ public readonly record struct TongueControlDebugInfo(
         => new(false, reason, 0f, 0f, 0f, 0f, 0f, 0f, Vector3.Zero, Vector3.Zero, Vector3.Zero);
 }
 
+internal sealed class FacialPoseCompositionState
+{
+    public Transform[]? Baseline { get; set; }
+    public Transform[]? LastResult { get; set; }
+    public bool IsActive { get; set; }
+    public bool IsPrepared { get; set; }
+    public bool RequestedActive { get; set; }
+
+    public void Reset()
+    {
+        Baseline = null;
+        LastResult = null;
+        IsActive = false;
+        IsPrepared = false;
+        RequestedActive = false;
+    }
+}
+
 internal sealed class FacialSchemaFileDto
 {
     public FacialParameterDto[] Data { get; set; } = [];

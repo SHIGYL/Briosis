@@ -152,7 +152,9 @@ public sealed class FacialControlCapability : ActorCharacterCapability
         return true;
     }
 
+    internal void PrepareForPoseUpdate(Skeleton skeleton) => _service.PrepareForPoseUpdate(State, skeleton);
     internal void UpdateAndApply(Skeleton skeleton) => _service.UpdateAndApply(State, skeleton, Actor.FriendlyName);
+    internal void FinalizePoseUpdate(Skeleton skeleton) => _service.FinalizePoseUpdate(State, skeleton);
 
     public override void Dispose()
     {

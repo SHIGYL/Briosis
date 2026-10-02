@@ -46,6 +46,56 @@ public sealed class FacialControlService
         LoadSchemas();
     }
 
+    public unsafe void PrepareForPoseUpdate(FacialControlState state, Skeleton skeleton)
+    {
+        if(!TryBind(state, skeleton) || !TryGetFacePose(skeleton, out var pose))
+            return;
+
+        var parameters = ResolveCompositeParameters(state, skeleton, out var tongueOutWeight);
+        var requestedActive = parameters.Count > 0 || tongueOutWeight > 0f;
+        var composition = state.Composition;
+
+        // Once a facial layer has been applied, run one final preparation pass when
+        // its weights reach zero so the last expression is removed as well.
+        if(!requestedActive && !composition.IsActive)
+        {
+            composition.IsPrepared = false;
+            return;
+        }
+
+        var current = CapturePose(pose);
+        if(current.Length == 0)
+            return;
+
+        if(composition.Baseline is { } baseline
+            && composition.LastResult is { } lastResult
+            && baseline.Length == current.Length
+            && lastResult.Length == current.Length)
+        {
+            for(var index = 0; index < current.Length; index++)
+            {
+                if(current[index].IsApproximatelySame(lastResult[index]))
+                {
+                    SetModelTransform(pose, index, baseline[index]);
+                    current[index] = baseline[index];
+                }
+                else
+                {
+                    // The engine supplied a fresh transform for this bone. Treat it as
+                    // the new base instead of subtracting a contribution that is absent.
+                    baseline[index] = current[index];
+                }
+            }
+        }
+        else
+        {
+            composition.Baseline = current;
+        }
+
+        composition.RequestedActive = requestedActive;
+        composition.IsPrepared = true;
+    }
+
     public unsafe void UpdateAndApply(FacialControlState state, Skeleton skeleton, string actorName)
     {
         if(!TryBind(state, skeleton))
@@ -54,20 +104,34 @@ public sealed class FacialControlService
         if(state.ConsumeTongueRigDiagnosticsRequest(skeleton))
             LogTongueRigDiagnostics(state, skeleton, actorName);
 
-        if(skeleton.Partials.Count <= 1)
+        if(!TryGetFacePose(skeleton, out var pose))
             return;
 
-        var pose = skeleton.Partials[1].GetBestPose();
-        if(pose == null || pose->Skeleton == null || pose->Skeleton->ParentIndices.Data == null || pose->ModelPose.Data == null)
-            return;
+        var parameters = ResolveCompositeParameters(state, skeleton, out var tongueOutWeight);
 
-        var active = ResolveCompositeParameters(state, skeleton, out var tongueOutWeight);
-
-        foreach(var (parameter, weight) in active)
+        foreach(var (parameter, weight) in parameters)
             ApplyParameter(pose, parameter, state.FaceId, weight);
 
         ApplyTongueOut(pose, state, tongueOutWeight);
         ApplyTongueBoneAdjustments(pose, state.GetTongueBoneAdjustments(), SmoothStep(0f, 1f, tongueOutWeight));
+    }
+
+    public unsafe void FinalizePoseUpdate(FacialControlState state, Skeleton skeleton)
+    {
+        var composition = state.Composition;
+
+        if(!composition.IsPrepared)
+            return;
+
+        if(!composition.RequestedActive || !TryGetFacePose(skeleton, out var pose))
+        {
+            composition.Reset();
+            return;
+        }
+
+        composition.LastResult = CapturePose(pose);
+        composition.IsActive = true;
+        composition.IsPrepared = false;
     }
 
     private static unsafe void ApplyTongueBoneAdjustments(hkaPose* pose, IReadOnlyDictionary<string, TongueBoneAdjustment> adjustments, float blend)
@@ -184,6 +248,29 @@ public sealed class FacialControlService
         => new(transform->Translation.X, transform->Translation.Y, transform->Translation.Z);
 
     private static string FormatFloat(float value) => value.ToString("R", CultureInfo.InvariantCulture);
+
+    private static unsafe bool TryGetFacePose(Skeleton skeleton, out hkaPose* pose)
+    {
+        pose = null;
+        if(skeleton.Partials.Count <= 1)
+            return false;
+
+        pose = skeleton.Partials[1].GetBestPose();
+        return pose != null
+            && pose->Skeleton != null
+            && pose->Skeleton->Bones.Data != null
+            && pose->Skeleton->ParentIndices.Data != null
+            && pose->ModelPose.Data != null;
+    }
+
+    private static unsafe Transform[] CapturePose(hkaPose* pose)
+    {
+        var count = Math.Min(pose->Skeleton->Bones.Length, pose->ModelPose.Length);
+        var transforms = new Transform[count];
+        for(var index = 0; index < count; index++)
+            transforms[index] = GetModelTransform(pose, index) ?? Transform.Identity;
+        return transforms;
+    }
 
     private static IReadOnlyList<(FacialParameter Parameter, float Weight)> ResolveCompositeParameters(FacialControlState state, Skeleton skeleton, out float tongueOutWeight)
     {
