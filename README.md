@@ -8,6 +8,14 @@
 
 Briosis is a community fork and mash-up built on [Brio](https://github.com/Etheirys/Brio), with expanded facial posing adapted from and inspired by [Ktisis](https://github.com/ktisis-tools/Ktisis). It is not an official Brio or Ktisis release.
 
+<p align="center">
+  <img
+    src="Resources/Images/briosis-demo.webp"
+    alt="Briosis facial controls demonstration"
+    width="900"
+  />
+</p>
+
 ## Features
 
 - Brio-based GPose actor, posing, animation, appearance, scene, camera, lighting, and world tools
