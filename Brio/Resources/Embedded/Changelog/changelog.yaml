@@ -1,10 +1,22 @@
 tagline: "Briosis"
 subline: "Community GPose posing toolkit"
 changelog:
+  - name: "v0.1.0.6"
+    tagline: "Tongue posing hotfix"
+    date: "October 16th 2026"
+    isCurrent: true
+    versions:
+      - number: "0.1.0.6"
+        icon: ""
+        items:
+          - "Fixed manual Tongue A/B/C positioning being overridden while Tongue Out was active."
+          - "Manual tongue posing now composes correctly with the procedural Tongue Out controller."
+          - "Added Reset Tongue Bones to clear manual tongue bone edits while keeping Tongue Out and profile settings."
+
   - name: "v0.1.0.5"
     tagline: "Facial composition fix"
     date: "October 2nd 2026"
-    isCurrent: true
+    isCurrent: false
     versions:
       - number: "0.1.0.5"
         icon: ""

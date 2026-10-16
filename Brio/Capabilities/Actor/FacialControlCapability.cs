@@ -124,6 +124,29 @@ public sealed class FacialControlCapability : ActorCharacterCapability
         }
     }
 
+    public bool ResetTongueBones()
+    {
+        if(!Entity.TryGetCapability<SkeletonPosingCapability>(out var skeletonPosing))
+            return false;
+
+        var changed = false;
+        foreach(var boneName in TongueBoneNames)
+        {
+            var bone = skeletonPosing.GetBone(boneName, PoseInfoSlot.Character);
+            if(bone is null)
+                continue;
+
+            var poseInfo = skeletonPosing.GetBonePose(bone);
+            if(!poseInfo.HasStacks)
+                continue;
+
+            poseInfo.ClearStacks();
+            changed = true;
+        }
+
+        return changed;
+    }
+
     private static Quaternion NormalizeSafe(Quaternion value)
         => !float.IsFinite(value.X) || !float.IsFinite(value.Y) || !float.IsFinite(value.Z) || !float.IsFinite(value.W) || value.LengthSquared() < 1e-12f
             ? Quaternion.Identity

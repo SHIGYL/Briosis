@@ -607,6 +607,10 @@ public sealed class FacialControlsEditor
 
         DrawTongueProfileManagement(capability, settingsAfterEdit);
 
+        if(ImGui.Button("Reset Tongue Bones", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+            CommitPoseAction(posing, capability.ResetTongueBones);
+        ImBrio.AttachToolTip("Reset manual edits on Tongue A, B and C. Keeps Tongue Out and tongue profile settings.");
+
         if(selectBone is not null)
             DrawTongueBoneButtons(selectBone);
 

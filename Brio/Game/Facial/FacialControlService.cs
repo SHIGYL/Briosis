@@ -337,9 +337,9 @@ public sealed class FacialControlService
 
         if(weight > 0f)
         {
-            rootDelta = ApplyReferenceRelativeTranslation(pose, geometry.FaceIndex, geometry.RootIndex, desiredDisplacement * rootFactor);
-            bodyDelta = ApplyReferenceRelativeTranslation(pose, geometry.FaceIndex, geometry.BodyIndex, desiredDisplacement * bodyFactor);
-            tipDelta = ApplyReferenceRelativeTranslation(pose, geometry.FaceIndex, geometry.TipIndex, desiredDisplacement * tipFactor);
+            rootDelta = ApplyTongueTranslation(pose, geometry.FaceIndex, geometry.RootIndex, desiredDisplacement * rootFactor);
+            bodyDelta = ApplyTongueTranslation(pose, geometry.FaceIndex, geometry.BodyIndex, desiredDisplacement * bodyFactor);
+            tipDelta = ApplyTongueTranslation(pose, geometry.FaceIndex, geometry.TipIndex, desiredDisplacement * tipFactor);
         }
 
         var currentTipFromPlane = GetCurrentTipFromMouthPlane(pose, geometry);
@@ -416,7 +416,7 @@ public sealed class FacialControlService
         return true;
     }
 
-    private static unsafe Vector3 ApplyReferenceRelativeTranslation(hkaPose* pose, int faceIndex, int boneIndex, Vector3 faceLocalContribution)
+    private static unsafe Vector3 ApplyTongueTranslation(hkaPose* pose, int faceIndex, int boneIndex, Vector3 faceLocalContribution)
     {
         var rig = pose->Skeleton;
         if(boneIndex < 0 || boneIndex >= rig->ParentIndices.Length || boneIndex >= rig->ReferencePose.Length)
@@ -432,8 +432,11 @@ public sealed class FacialControlService
         var modelContribution = Vector3.Transform(Multiply(faceLocalContribution, face.Value.Scale), face.Value.Rotation);
         var parentUnrotated = Vector3.Transform(modelContribution, Quaternion.Inverse(parent.Value.Rotation));
         var parentLocalContribution = Divide(parentUnrotated, parent.Value.Scale);
-        var referenceLocalPosition = ReadTranslation(rig->ReferencePose.Data + boneIndex);
-        var targetLocalPosition = referenceLocalPosition + parentLocalContribution;
+        // PoseInfo and ancestor propagation have already supplied the genuine manual
+        // pose. Add the overlay to that position; anchoring it to ReferencePose would
+        // hide manual edits until Tongue Out is disabled.
+        var currentLocalPosition = ModelPointToLocal(initial.Value.Position, parent.Value);
+        var targetLocalPosition = currentLocalPosition + parentLocalContribution;
         var targetModelPosition = parent.Value.Position
             + Vector3.Transform(Multiply(targetLocalPosition, parent.Value.Scale), parent.Value.Rotation);
 
